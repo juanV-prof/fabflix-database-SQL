@@ -49,8 +49,8 @@ public class Top20Servlet extends HttpServlet {
             Statement statement = conn.createStatement();
 
             String query = "SELECT m.id, m.title, m.year, m.director, " +
-                    "GROUP_CONCAT(DISTINCT g.name ORDER BY g.name ASC) AS genres, " +
-                    "GROUP_CONCAT(DISTINCT s.name ORDER BY s.name ASC) AS stars, " +
+                    "REPLACE(GROUP_CONCAT(DISTINCT g.name ORDER BY g.name ASC), ',', ', ') AS genres, " +
+                    "REPLACE(SUBSTRING_INDEX(GROUP_CONCAT(DISTINCT s.name ORDER BY s.name ASC), ',', 3), ',', ', ') AS stars, " +
                     "r.rating " +
                     "FROM movies m " +
                     "JOIN ratings r ON m.id = r.movieId " +
