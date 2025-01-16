@@ -17,23 +17,21 @@ function handleStarResult(resultData) {
     console.log("handleStarResult: populating star table from resultData");
 
     // Populate the star table
-    // Find the empty table body by id "star_table_body"
-    let starTableBodyElement = jQuery("#star_table_body");
+    // Find the empty table body by id "movie_table_body"
+    let starTableBodyElement = jQuery("#movie_table_body");
 
     // Iterate through resultData, no more than 10 entries
-    for (let i = 0; i < Math.min(10, resultData.length); i++) {
+    for (let i = 0; i < 20; i++) {
 
         // Concatenate the html tags with resultData jsonObject
         let rowHTML = "";
         rowHTML += "<tr>";
-        rowHTML +=
-            "<th>" +
-            // Add a link to single-star.html with id passed with GET url parameter
-            '<a href="single-star.html?id=' + resultData[i]['star_id'] + '">'
-            + resultData[i]["star_name"] +     // display star_name for the link text
-            '</a>' +
-            "</th>";
-        rowHTML += "<th>" + resultData[i]["star_dob"] + "</th>";
+        rowHTML += "<th>" + resultData[i]["title"] + "</th>";        // Movie title
+        rowHTML += "<th>" + resultData[i]["year"] + "</th>";        // Release year
+        rowHTML += "<th>" + resultData[i]["director"] + "</th>";    // Director
+        rowHTML += "<th>" + resultData[i]["genres"] + "</th>";      // Genres
+        rowHTML += "<th>" + resultData[i]["stars"] + "</th>";       // Stars
+        rowHTML += "<th>" + resultData[i]["rating"] + "</th>";      // Rating
         rowHTML += "</tr>";
 
         // Append the row created to the table body, which will refresh the page
@@ -50,6 +48,6 @@ function handleStarResult(resultData) {
 jQuery.ajax({
     dataType: "json", // Setting return data type
     method: "GET", // Setting request method
-    url: "api/stars", // Setting request url, which is mapped by StarsServlet in Stars.java
+    url: "api/top20", // Setting request url, which is mapped by StarsServlet in Stars.java
     success: (resultData) => handleStarResult(resultData) // Setting callback function to handle data returned successfully by the StarsServlet
 });
