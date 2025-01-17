@@ -18,24 +18,26 @@ function handleStarResult(resultData) {
 
     // Populate the star table
     // Find the empty table body by id "movie_table_body"
-    let starTableBodyElement = jQuery("#movie_table_body");
+    let movieTableBodyElement = jQuery("#movie_table_body");
 
     // Iterate through resultData, no more than 10 entries
     for (let i = 0; i < 20; i++) {
+        let rowHTML = "<tr>";
 
-        // Concatenate the html tags with resultData jsonObject
-        let rowHTML = "";
-        rowHTML += "<tr>";
-        rowHTML += "<th>" + resultData[i]["title"] + "</th>";        // Movie title
-        rowHTML += "<th>" + resultData[i]["year"] + "</th>";        // Release year
-        rowHTML += "<th>" + resultData[i]["director"] + "</th>";    // Director
-        rowHTML += "<th>" + resultData[i]["genres"] + "</th>";      // Genres
-        rowHTML += "<th>" + resultData[i]["stars"] + "</th>";       // Stars
-        rowHTML += "<th>" + resultData[i]["rating"] + "</th>";      // Rating
+        // Add link to each movie title
+        rowHTML += "<th><a href='movie.html?id=" + encodeURIComponent(resultData[i]["movie_id"]) + "'>"
+            + resultData[i]["title"] + "</a></th>";
+
+        rowHTML += "<th>" + resultData[i]["year"] + "</th>";
+        rowHTML += "<th>" + resultData[i]["director"] + "</th>";
+        rowHTML += "<th>" + resultData[i]["genres"] + "</th>";
+        rowHTML += "<th>" + resultData[i]["stars"] + "</th>";
+        rowHTML += "<th>" + resultData[i]["rating"] + "</th>";
+
         rowHTML += "</tr>";
 
-        // Append the row created to the table body, which will refresh the page
-        starTableBodyElement.append(rowHTML);
+
+        movieTableBodyElement.append(rowHTML);
     }
 }
 

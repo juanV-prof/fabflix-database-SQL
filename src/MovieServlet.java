@@ -12,13 +12,14 @@ import javax.sql.DataSource;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
 
 
-// Declaring a WebServlet called StarsServlet, which maps to url "/api/stars"
-@WebServlet(name = "StarsServlet", urlPatterns = "/api/stars")
-public class StarsServlet extends HttpServlet {
+// Declaring a WebServlet called MovieServlet, which maps to url "/api/movie?id=m1"
+@WebServlet(name = "MovieServlet", urlPatterns = "/api/movie")
+public class MovieServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
     // Create a dataSource which registered in web.
@@ -26,7 +27,7 @@ public class StarsServlet extends HttpServlet {
 
     public void init(ServletConfig config) {
         try {
-            dataSource = (DataSource) new InitialContext().lookup("java:comp/env/jdbc/moviedbexample");
+            dataSource = (DataSource) new InitialContext().lookup("java:comp/env/jdbc/moviedb");
         } catch (NamingException e) {
             e.printStackTrace();
         }
@@ -41,39 +42,60 @@ public class StarsServlet extends HttpServlet {
 
         // Output stream to STDOUT
         PrintWriter out = response.getWriter();
+        String movieId = request.getParameter("id"); // Get the movie_id from the query string
 
         // Get a connection from dataSource and let resource manager close the connection after usage.
         try (Connection conn = dataSource.getConnection()) {
+            // Construct a query with parameter represented by "?"
+            String query = "SELECT m.id, m.title, m.year, m.director, " +
+                    "GROUP_CONCAT(DISTINCT g.name ORDER BY g.name ASC) AS genres, " +
+                    "GROUP_CONCAT(DISTINCT s.name ORDER BY s.name ASC) AS stars, " +
+                    "r.rating AS rating " +
+                    "FROM movies m " +
+                    "JOIN ratings r ON m.id = r.movieId " +
+                    "LEFT JOIN genres_in_movies gm ON m.id = gm.movieId " +
+                    "LEFT JOIN genres g ON gm.genreId = g.id " +
+                    "LEFT JOIN stars_in_movies sm ON m.id = sm.movieId " +
+                    "LEFT JOIN stars s ON sm.starId = s.id " +
+                    "WHERE m.id = ? " +
+                    "GROUP BY m.id, m.title, m.year, m.director, r.rating";
 
-            // Declare our statement
-            Statement statement = conn.createStatement();
+            // Create the prepared statement
+            PreparedStatement preparedStatement = conn.prepareStatement(query);
 
-            String query = "SELECT * from stars";
+            // Bind the movieId
+            preparedStatement.setString(1, movieId);
 
             // Perform the query
-            ResultSet rs = statement.executeQuery(query);
+            ResultSet rs = preparedStatement.executeQuery();
 
             JsonArray jsonArray = new JsonArray();
 
             // Iterate through each row of rs
             while (rs.next()) {
-                String star_id = rs.getString("id");
-                String star_name = rs.getString("name");
-                String star_dob = rs.getString("birthYear");
+                String id = rs.getString("id");
+                String title = rs.getString("title");
+                String year = rs.getString("year");
+                String director = rs.getString("director");
+                String genres = rs.getString("genres");
+                String stars = rs.getString("stars");
+                Double rating = rs.getDouble("rating");
 
-                // Create a JsonObject based on the data we retrieve from rs
                 JsonObject jsonObject = new JsonObject();
-                jsonObject.addProperty("star_id", star_id);
-                jsonObject.addProperty("star_name", star_name);
-                jsonObject.addProperty("star_dob", star_dob);
+                jsonObject.addProperty("movie_id", id);
+                jsonObject.addProperty("title", title);
+                jsonObject.addProperty("year", year);
+                jsonObject.addProperty("director", director);
+                jsonObject.addProperty("genres", genres);
+                jsonObject.addProperty("stars", stars);
+                jsonObject.addProperty("rating", rating);
 
                 jsonArray.add(jsonObject);
             }
             rs.close();
-            statement.close();
 
             // Log to localhost log
-            request.getServletContext().log("getting " + jsonArray.size() + " results");
+            request.getServletContext().log("Retrieved movie data");
 
             // Write JSON string to output
             out.write(jsonArray.toString());
