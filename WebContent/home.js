@@ -31,7 +31,14 @@ function handleStarResult(resultData) {
         rowHTML += "<th>" + resultData[i]["year"] + "</th>";
         rowHTML += "<th>" + resultData[i]["director"] + "</th>";
         rowHTML += "<th>" + resultData[i]["genres"] + "</th>";
-        rowHTML += "<th>" + resultData[i]["stars"] + "</th>";
+
+        let stars = resultData[i]["stars"].split(', ');
+        let starLinks = stars.map(star => {
+            let [name, id] = star.split(':');
+            return "<a href='star.html?id=" + encodeURIComponent(id) + "'>" + name + "</a>";
+        });
+        rowHTML += "<th>" + starLinks.join(', ') + "</th>";
+
         rowHTML += "<th>" + resultData[i]["rating"] + "</th>";
 
         rowHTML += "</tr>";

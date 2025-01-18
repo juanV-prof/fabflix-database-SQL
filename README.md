@@ -1,6 +1,5 @@
-Start of Project 1
+Partner 1: Juan Varela
 
-Juan Varela 
-Alfredo Leon
+Partner 2: Alfredo Leon
 
-Both partners met up and contributed to the project.
+Both partners met up in person and worked on one computer. Hence, push to Github repo was done mostly by one partner's account.

@@ -49,7 +49,7 @@ public class MovieServlet extends HttpServlet {
             // Construct a query with parameter represented by "?"
             String query = "SELECT m.id, m.title, m.year, m.director, " +
                     "GROUP_CONCAT(DISTINCT g.name ORDER BY g.name ASC) AS genres, " +
-                    "GROUP_CONCAT(DISTINCT s.name ORDER BY s.name ASC) AS stars, " +
+                    "GROUP_CONCAT(DISTINCT s.name ORDER BY s.name ASC SEPARATOR ', ') AS stars, " +
                     "r.rating AS rating " +
                     "FROM movies m " +
                     "JOIN ratings r ON m.id = r.movieId " +
