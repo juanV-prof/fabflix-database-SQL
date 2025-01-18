@@ -17,8 +17,8 @@ function handleStarResult(resultData) {
     console.log("handleStarResult: populating star table from resultData");
 
     // Populate the star table
-    // Find the empty table body by id "movie_table_body"
-    let movieTableBodyElement = jQuery("#movie_table_body");
+    // Find the empty table body by id "top20_table_body"
+    let movieTableBodyElement = jQuery("#top20_table_body");
 
     // Iterate through resultData, no more than 10 entries
     for (let i = 0; i < 20; i++) {

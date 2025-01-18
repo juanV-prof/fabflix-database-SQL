@@ -14,7 +14,6 @@ import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.Statement;
 
 
 // Declaring a WebServlet called MovieServlet, which maps to url "/api/movie?id=m1"
@@ -48,8 +47,8 @@ public class MovieServlet extends HttpServlet {
         try (Connection conn = dataSource.getConnection()) {
             // Construct a query with parameter represented by "?"
             String query = "SELECT m.id, m.title, m.year, m.director, " +
-                    "GROUP_CONCAT(DISTINCT g.name ORDER BY g.name ASC) AS genres, " +
-                    "GROUP_CONCAT(DISTINCT s.name ORDER BY s.name ASC SEPARATOR ', ') AS stars, " +
+                    "GROUP_CONCAT(DISTINCT g.name ORDER BY g.name ASC SEPARATOR ', ') AS genres, " +
+                    "GROUP_CONCAT(DISTINCT CONCAT(s.name, ':', s.id) ORDER BY s.name ASC SEPARATOR ', ') AS stars, " +
                     "r.rating AS rating " +
                     "FROM movies m " +
                     "JOIN ratings r ON m.id = r.movieId " +

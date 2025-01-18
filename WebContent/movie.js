@@ -9,9 +9,8 @@ function handleMovieResult(resultData) {
     const movieData = resultData[0];
 
     // Set <title> and <h1> to  movie title with year in parentheses
-    const titleWithYear = `${movieData["title"]} (${movieData["year"]})`;
-    document.title = titleWithYear; // Update  <title>
-    jQuery("h1").text(titleWithYear); // Update  <h1>
+    document.title = `${movieData["title"]}`; // Update  <title>
+    jQuery("h1").text(`${movieData["title"]} (${movieData["year"]})`); // Update  <h1>
 
     // Populate the movie table
     let movieTableBodyElement = jQuery("#movie_table_body");
@@ -19,7 +18,14 @@ function handleMovieResult(resultData) {
     let rowHTML = "<tr>";
     rowHTML += "<th>" + movieData["director"] + "</th>";
     rowHTML += "<th>" + movieData["genres"] + "</th>";
-    rowHTML += "<th>" + movieData["stars"] + "</th>";
+
+    let stars = movieData["stars"].split(', ');
+    let starLinks = stars.map(star => {
+        let [name, id] = star.split(':');
+        return "<a href='star.html?id=" + encodeURIComponent(id) + "'>" + name + "</a>";
+    });
+    rowHTML += "<th>" + starLinks.join(', ') + "</th>";
+
     rowHTML += "<th>" + movieData["rating"] + "</th>";
     rowHTML += "</tr>";
 
