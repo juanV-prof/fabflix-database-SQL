@@ -43,7 +43,24 @@
 </nav>
 
 <div class="container mt-4">
-    <!-- Empty body for now -->
+    <!-- Browsing Section -->
+    <div class="row">
+        <!-- Genres Section -->
+        <div class="col-md-12">
+            <h3>Browse by Genre</h3>
+            <ul id="genreList" class="list-inline">
+                <!-- Genres will be dynamically inserted here -->
+            </ul>
+        </div>
+
+        <!-- Titles Section -->
+        <div class="col-md-12">
+            <h3>Browse by Title</h3>
+            <ul id="alphabetList" class="list-inline">
+                <!-- Alphabetical list will be dynamically inserted here -->
+            </ul>
+        </div>
+    </div>
 </div>
 
 <!-- Load jQuery and Bootstrap JS -->
@@ -52,6 +69,53 @@
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
 
 <!-- Load our own JS file -->
-<script src="movie_list.js"></script>
+<script src="top20.js"></script>
+
+<script>
+    $(document).ready(function() {
+        const genres = [
+            'Action', 'Adult', 'Adventure', 'Animation', 'Biography', 'Comedy',
+            'Crime', 'Documentary', 'Drama', 'Family', 'Fantasy', 'History',
+            'Horror', 'Music', 'Musical', 'Mystery', 'Reality-TV', 'Romance',
+            'Sci-Fi', 'Sport', 'Thriller', 'War', 'Western'
+        ];
+
+        const generateGenreList = () => {
+            const genreList = $('#genreList');
+            genres.sort().forEach(genre => {
+                const genreItem = $('<li class="list-inline-item"></li>');
+                genreItem.append(`<a href="movie_list.html?genre=${genre}" class="btn btn-link">${genre}</a>`);
+                genreList.append(genreItem);
+            });
+        };
+
+        const alphabet = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
+        const numbers = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+
+        const generateAlphabetList = () => {
+            const alphabetList = $('#alphabetList');
+
+            alphabet.forEach(letter => {
+                const alphabetItem = $('<li class="list-inline-item"></li>');
+                alphabetItem.append(`<a href="movie_list.html?title=${letter}" class="btn btn-link">${letter}</a>`);
+                alphabetList.append(alphabetItem);
+            });
+
+            numbers.forEach(number => {
+                const numberItem = $('<li class="list-inline-item"></li>');
+                numberItem.append(`<a href="movie_list.html?title=${number}" class="btn btn-link">${number}</a>`);
+                alphabetList.append(numberItem);
+            });
+
+            const nonAlphanumericItem = $('<li class="list-inline-item"></li>');
+            nonAlphanumericItem.append(`<a href="movie_list.html?title=*" class="btn btn-link">*</a>`);
+            alphabetList.append(nonAlphanumericItem);
+        };
+
+        generateGenreList();
+        generateAlphabetList();
+    });
+</script>
+
 </body>
 </html>

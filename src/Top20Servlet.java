@@ -59,15 +59,18 @@ public class Top20Servlet extends HttpServlet {
                     "        r.rating DESC\n" +
                     "    LIMIT 20\n" +
                     ")\n" +
-                    "-- Add genres and stars for these top 20 movies\n" +
+                    "-- Fetch genres and stars for these top movies\n" +
                     "SELECT \n" +
                     "    tm.id,\n" +
                     "    tm.title,\n" +
                     "    tm.year,\n" +
                     "    tm.director,\n" +
                     "    tm.rating,\n" +
-                    "    REPLACE(GROUP_CONCAT(DISTINCT g.name ORDER BY g.name ASC), ',', ', ') AS genres,\n" +
-                    "    SUBSTRING_INDEX(GROUP_CONCAT(DISTINCT CONCAT(s.name, ':', s.id) ORDER BY s.name ASC SEPARATOR ', '), ', ', 3) AS stars\n" +
+                    "    REPLACE(GROUP_CONCAT(DISTINCT g.name SEPARATOR ', '), ',', ', ') AS genres,\n" +
+                    "    SUBSTRING_INDEX(\n" +
+                    "        GROUP_CONCAT(DISTINCT CONCAT(s.name, ':', s.id) SEPARATOR ', '),\n" +
+                    "        ', ', 3\n" +
+                    "    ) AS stars\n" +
                     "FROM \n" +
                     "    TopMovies tm\n" +
                     "LEFT JOIN \n" +
@@ -79,7 +82,9 @@ public class Top20Servlet extends HttpServlet {
                     "LEFT JOIN \n" +
                     "    stars s ON sm.starId = s.id\n" +
                     "GROUP BY \n" +
-                    "    tm.id, tm.title, tm.year, tm.director, tm.rating;";
+                    "    tm.id, tm.title, tm.year, tm.director, tm.rating\n" +
+                    "ORDER BY \n" +
+                    "    tm.rating DESC;\n";
 
             // Perform the query
             ResultSet rs = statement.executeQuery(query);
