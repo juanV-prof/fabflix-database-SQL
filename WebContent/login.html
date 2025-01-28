@@ -1,0 +1,92 @@
+<!-- This page will be redirected from any URL if you are not logged in -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login to Fablix</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background: linear-gradient(135deg, #193be5, #9eace6);
+        }
+
+        .login-container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .login-container h1 {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            color: #333;
+        }
+
+        .login-container img.logo {
+            max-width: 150px;
+            margin-bottom: 1rem;
+        }
+
+        .login-container form {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .login-container input {
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        .login-container button {
+            padding: 0.8rem;
+            border: none;
+            border-radius: 5px;
+            background-color: #6c63ff;
+            color: white;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .login-container button:hover {
+            background-color: #574bda;
+        }
+
+        #login_error_message {
+            color: red;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+<div class="login-container">
+    <img src="/Users/aleon/UCI/CS_122B/cs122b-winter25-aj/logo.png" class="logo" alt="Fablix Logo">
+    <h1>Login to Fablix</h1>
+    <form id="login_form" method="post" action="#">
+        <input name="username" placeholder="Enter Username" type="text" required>
+        <input name="password" placeholder="Enter Password" type="password" required>
+        <button type="submit">Login</button>
+    </form>
+    <div id="login_error_message"></div>
+</div>
+<!-- include jQuery -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<!-- include our own JS file -->
+<script src="./login.js"></script>
+</body>
+</html>
