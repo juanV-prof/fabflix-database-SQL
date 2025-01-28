@@ -48,19 +48,38 @@ public class Top20Servlet extends HttpServlet {
             // Declare our statement
             Statement statement = conn.createStatement();
 
-            String query = "SELECT m.id, m.title, m.year, m.director, " +
-                    "REPLACE(GROUP_CONCAT(DISTINCT g.name ORDER BY g.name ASC), ',', ', ') AS genres, " +
-                    "SUBSTRING_INDEX(GROUP_CONCAT(DISTINCT CONCAT(s.name, ':', s.id) ORDER BY s.name ASC SEPARATOR ', '), ', ', 3) AS stars, " +
-                    "r.rating " +
-                    "FROM movies m " +
-                    "JOIN ratings r ON m.id = r.movieId " +
-                    "LEFT JOIN genres_in_movies gm ON m.id = gm.movieId " +
-                    "LEFT JOIN genres g ON gm.genreId = g.id " +
-                    "LEFT JOIN stars_in_movies sm ON m.id = sm.movieId " +
-                    "LEFT JOIN stars s ON sm.starId = s.id " +
-                    "GROUP BY m.id, m.title, m.year, m.director, r.rating " +
-                    "ORDER BY r.rating DESC " +
-                    "LIMIT 20";
+            String query = "WITH TopMovies AS (\n" +
+                    "    SELECT \n" +
+                    "        m.id, m.title, m.year, m.director, r.rating\n" +
+                    "    FROM \n" +
+                    "        movies m\n" +
+                    "    JOIN \n" +
+                    "        ratings r ON m.id = r.movieId\n" +
+                    "    ORDER BY \n" +
+                    "        r.rating DESC\n" +
+                    "    LIMIT 20\n" +
+                    ")\n" +
+                    "-- Add genres and stars for these top 20 movies\n" +
+                    "SELECT \n" +
+                    "    tm.id,\n" +
+                    "    tm.title,\n" +
+                    "    tm.year,\n" +
+                    "    tm.director,\n" +
+                    "    tm.rating,\n" +
+                    "    REPLACE(GROUP_CONCAT(DISTINCT g.name ORDER BY g.name ASC), ',', ', ') AS genres,\n" +
+                    "    SUBSTRING_INDEX(GROUP_CONCAT(DISTINCT CONCAT(s.name, ':', s.id) ORDER BY s.name ASC SEPARATOR ', '), ', ', 3) AS stars\n" +
+                    "FROM \n" +
+                    "    TopMovies tm\n" +
+                    "LEFT JOIN \n" +
+                    "    genres_in_movies gm ON tm.id = gm.movieId\n" +
+                    "LEFT JOIN \n" +
+                    "    genres g ON gm.genreId = g.id\n" +
+                    "LEFT JOIN \n" +
+                    "    stars_in_movies sm ON tm.id = sm.movieId\n" +
+                    "LEFT JOIN \n" +
+                    "    stars s ON sm.starId = s.id\n" +
+                    "GROUP BY \n" +
+                    "    tm.id, tm.title, tm.year, tm.director, tm.rating;";
 
             // Perform the query
             ResultSet rs = statement.executeQuery(query);

@@ -2,6 +2,10 @@
 # Created by https://www.gitignore.io/api/java,maven,eclipse,java-web,intellij
 
 ### Eclipse ###
+.idea
+.DS_Store
+create_table.sql
+movie-data.sql
 
 .metadata
 bin/
