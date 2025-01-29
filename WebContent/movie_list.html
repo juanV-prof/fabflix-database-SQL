@@ -31,6 +31,23 @@
             color: #a6a6a6;
             cursor: not-allowed;
         }
+
+        /* Style for the "Add" buttons */
+        .add-button {
+            background-color: white; /* White inside */
+            border: 2px solid #438DD3; /* Blue outline */
+            color: #438DD3; /* Text color same as outline */
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .add-button:hover {
+            background-color: #438DD3; /* Blue background on hover */
+            color: white; /* White text on hover */
+        }
     </style>
 </head>
 <body>
@@ -71,7 +88,7 @@
         <label for="moviesPerPage" class="mr-2">Movies per Page:</label>
         <select id="moviesPerPage" class="form-control form-control-sm mr-3" style="width: auto;">
             <option value="10">10</option>
-            <option value="25">25</option>
+            <option value="25" selected>25</option>
             <option value="50">50</option>
             <option value="100">100</option>
         </select>

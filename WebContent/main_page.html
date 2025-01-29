@@ -25,7 +25,7 @@
                 <a class="nav-link" href="top20.html" style="color: white;">Top 20</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="results.html" style="color: white;">Result</a>
+                <a class="nav-link" href="movie_list.html" style="color: white;">Result</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="checkout.html" style="color: white;">Checkout</a>
@@ -68,26 +68,24 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
 
-<!-- Load our own JS file -->
-<script src="top20.js"></script>
-
+<!-- Run JS Scripting -->
 <script>
     $(document).ready(function() {
-        const genres = [
-            'Action', 'Adult', 'Adventure', 'Animation', 'Biography', 'Comedy',
-            'Crime', 'Documentary', 'Drama', 'Family', 'Fantasy', 'History',
-            'Horror', 'Music', 'Musical', 'Mystery', 'Reality-TV', 'Romance',
-            'Sci-Fi', 'Sport', 'Thriller', 'War', 'Western'
-        ];
+        $.ajax({
+            url: "api/main_page", // Calls the MainPageServlet
+            method: "GET",
+            dataType: "json",
+            success: function(genres) {
+                const genreList = $('#genreList'); // Select the genre list container
+                genreList.empty(); // Clear any existing content
 
-        const generateGenreList = () => {
-            const genreList = $('#genreList');
-            genres.sort().forEach(genre => {
-                const genreItem = $('<li class="list-inline-item"></li>');
-                genreItem.append(`<a href="movie_list.html?genre=${genre}" class="btn btn-link">${genre}</a>`);
-                genreList.append(genreItem);
-            });
-        };
+                genres.forEach(genre => {
+                    const genreItem = $('<li class="list-inline-item"></li>');
+                    genreItem.append(`<a href="movie_list.html?genre=${encodeURIComponent(genre)}" class="btn btn-link">${genre}</a>`);
+                    genreList.append(genreItem);
+                });
+            }
+        });
 
         const alphabet = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
         const numbers = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
@@ -97,23 +95,37 @@
 
             alphabet.forEach(letter => {
                 const alphabetItem = $('<li class="list-inline-item"></li>');
-                alphabetItem.append(`<a href="movie_list.html?title=${letter}" class="btn btn-link">${letter}</a>`);
+                alphabetItem.append(`<a href="movie_list.html?prefix=${letter}" class="btn btn-link">${letter}</a>`);
                 alphabetList.append(alphabetItem);
             });
 
             numbers.forEach(number => {
                 const numberItem = $('<li class="list-inline-item"></li>');
-                numberItem.append(`<a href="movie_list.html?title=${number}" class="btn btn-link">${number}</a>`);
+                numberItem.append(`<a href="movie_list.html?prefix=${number}" class="btn btn-link">${number}</a>`);
                 alphabetList.append(numberItem);
             });
 
             const nonAlphanumericItem = $('<li class="list-inline-item"></li>');
-            nonAlphanumericItem.append(`<a href="movie_list.html?title=*" class="btn btn-link">*</a>`);
+            nonAlphanumericItem.append(`<a href="movie_list.html?prefix=*" class="btn btn-link">*</a>`);
             alphabetList.append(nonAlphanumericItem);
         };
 
-        generateGenreList();
         generateAlphabetList();
+
+        $("#searchButton").click(function() {
+            let title = $("#searchTitle").val();
+            let year = $("#searchYear").val();
+            let director = $("#searchDirector").val();
+            let starsName = $("#searchStarsName").val();
+
+            let queryParams = new URLSearchParams();
+            if (title) queryParams.append("title", title);
+            if (year) queryParams.append("year", year);
+            if (director) queryParams.append("director", director);
+            if (starsName) queryParams.append("star", starsName);
+
+            window.location.href = "movie_list.html?" + queryParams.toString();
+        });
     });
 </script>
 
