@@ -88,14 +88,14 @@
         <label for="moviesPerPage" class="mr-2">Movies per Page:</label>
         <select id="moviesPerPage" class="form-control form-control-sm mr-3" style="width: auto;">
             <option value="10">10</option>
-            <option value="25" selected>25</option>
+            <option value="25">25</option>
             <option value="50">50</option>
             <option value="100">100</option>
         </select>
 
         <label for="sortBy" class="mr-2">Sort by:</label>
         <select id="sortBy" class="form-control form-control-sm mr-3" style="width: auto;">
-            <option value="titleAscRatingAsc" selected>Title ↑, Rating ↑</option>
+            <option value="titleAscRatingAsc" >Title ↑, Rating ↑</option>
             <option value="titleAscRatingDesc">Title ↑, Rating ↓</option>
             <option value="titleDescRatingAsc">Title ↓, Rating ↑</option>
             <option value="titleDescRatingDesc">Title ↓, Rating ↓</option>
@@ -160,6 +160,61 @@
             queryParams.append("pageNumber", "1");
 
             window.location.href = "results.html?" + queryParams.toString();
+        });
+
+        $("#sortButton").click(function() {
+            let params = new URLSearchParams(window.location.search);
+
+            let moviesPerPage = $("#moviesPerPage").val();
+            let sortBy = $("#sortBy").val();
+
+            params.set("moviesPerPage", moviesPerPage);
+            params.set("sortBy", sortBy);
+            params.set("pageNumber", "1");
+
+            // Update URL without reloading
+            history.replaceState(null, "", "results.html?" + params.toString());
+
+            getMovies();
+        });
+    });
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const moviesPerPageDropdown = document.getElementById("moviesPerPage");
+        const sortByDropdown = document.getElementById("sortBy");
+
+        const defaultMoviesPerPage = "25";
+        const defaultSortBy = "titleAscRatingAsc";
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const hasMoviesPerPage = urlParams.has("moviesPerPage");
+        const hasSortBy = urlParams.has("sortBy");
+
+        if (hasMoviesPerPage && hasSortBy) {
+            moviesPerPageDropdown.value = urlParams.get("moviesPerPage");
+            sortByDropdown.value = urlParams.get("sortBy");
+
+            sessionStorage.setItem("moviesPerPage", urlParams.get("moviesPerPage"));
+            sessionStorage.setItem("sortBy", urlParams.get("sortBy"));
+        } else {
+            const savedMoviesPerPage = sessionStorage.getItem("moviesPerPage") || defaultMoviesPerPage;
+            const savedSortBy = sessionStorage.getItem("sortBy") || defaultSortBy;
+
+            moviesPerPageDropdown.value = savedMoviesPerPage;
+            sortByDropdown.value = savedSortBy;
+
+            sessionStorage.setItem("moviesPerPage", savedMoviesPerPage);
+            sessionStorage.setItem("sortBy", savedSortBy);
+        }
+
+        moviesPerPageDropdown.addEventListener("change", function () {
+            sessionStorage.setItem("moviesPerPage", moviesPerPageDropdown.value);
+        });
+
+        sortByDropdown.addEventListener("change", function () {
+            sessionStorage.setItem("sortBy", sortByDropdown.value);
         });
     });
 </script>

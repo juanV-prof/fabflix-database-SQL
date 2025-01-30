@@ -8,6 +8,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import javax.sql.DataSource;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -57,18 +58,45 @@ public class ResultsServlet extends HttpServlet {
         // Output stream to STDOUT
         PrintWriter out = response.getWriter();
 
+        HttpSession session = request.getSession();
+
+        String genre = request.getParameter("genre");
+        String prefix = request.getParameter("prefix");
+        String title = request.getParameter("title");
+        String year = request.getParameter("year");
+        String star = request.getParameter("star");
+        String sortBy = request.getParameter("sortBy");
+        String moviesPerPage = request.getParameter("moviesPerPage");
+        String pageNumber = request.getParameter("pageNumber");
+
+        if (genre != null || prefix != null || title != null || year != null || star != null || sortBy != null || moviesPerPage != null || pageNumber != null) {
+            System.out.println("IT SETS ATTRIBUTES");
+            session.setAttribute("genre", genre);
+            session.setAttribute("prefix", prefix);
+            session.setAttribute("title", title);
+            session.setAttribute("year", year);
+            session.setAttribute("star", star);
+            session.setAttribute("sortBy", sortBy);
+            session.setAttribute("moviesPerPage", moviesPerPage);
+            session.setAttribute("pageNumber", pageNumber);
+        } else {
+            System.out.println("IT GOES IN HERE");
+            genre = (String) session.getAttribute("genre");
+            prefix = (String) session.getAttribute("prefix");
+            title = (String) session.getAttribute("title");
+            year = (String) session.getAttribute("year");
+            star = (String) session.getAttribute("star");
+            sortBy = (String) session.getAttribute("sortBy");
+            moviesPerPage = (String) session.getAttribute("moviesPerPage");
+            pageNumber = (String) session.getAttribute("pageNumber");
+        }
+
         // Get a connection from dataSource and let resource manager close the connection after usage.
         try (Connection conn = dataSource.getConnection()) {
 
-            String genre = request.getParameter("genre");
-            String prefix = request.getParameter("prefix");
-            String title = request.getParameter("title");
-            String year = request.getParameter("year");
-            String star = request.getParameter("star");
-            int moviesPerPage = Integer.parseInt(request.getParameter("moviesPerPage"));
-            String sortBy = request.getParameter("sortBy");
-            int pageNumber = Integer.parseInt(request.getParameter("pageNumber"));
-            int offset = moviesPerPage * (pageNumber - 1);
+            int moviesPerPageInt = Integer.parseInt(moviesPerPage);
+            int pageNumberInt = Integer.parseInt(pageNumber);
+            int offset = moviesPerPageInt * (pageNumberInt - 1);
 
             String query = "";
             PreparedStatement statement;
@@ -88,7 +116,7 @@ public class ResultsServlet extends HttpServlet {
                         "        genres g ON gm.genreId = g.id\n" +
                         "    WHERE \n" +
                         "        g.name = ?\n" +
-                        filter +
+                        filter  +
                         "    LIMIT ? OFFSET ?\n" +
                         ")\n" +
                         "SELECT \n" +
@@ -99,7 +127,7 @@ public class ResultsServlet extends HttpServlet {
                         "    tm.rating,\n" +
                         "    REPLACE(GROUP_CONCAT(DISTINCT g.name SEPARATOR ', '), ',', ', ') AS genres,\n" +
                         "    SUBSTRING_INDEX(\n" +
-                        "        GROUP_CONCAT(DISTINCT CONCAT(s.name, ':', s.id) SEPARATOR ', '),\n" +
+                        "        GROUP_CONCAT(DISTINCT CONCAT(s.name, ':', s.id) ORDER BY star_count DESC, s.name ASC SEPARATOR ', '),\n" +
                         "        ', ', 3\n" +
                         "    ) AS stars\n" +
                         "FROM \n" +
@@ -112,15 +140,137 @@ public class ResultsServlet extends HttpServlet {
                         "    stars_in_movies sm ON tm.id = sm.movieId\n" +
                         "LEFT JOIN \n" +
                         "    stars s ON sm.starId = s.id\n" +
+                        "LEFT JOIN (\n" +
+                        "    SELECT \n" +
+                        "        sm.starId,\n" +
+                        "        COUNT(sm.movieId) AS star_count\n" +
+                        "    FROM \n" +
+                        "        stars_in_movies sm\n" +
+                        "    GROUP BY \n" +
+                        "        sm.starId\n" +
+                        ") star_counts ON s.id = star_counts.starId\n" +
                         "GROUP BY \n" +
                         "    tm.id, tm.title, tm.year, tm.director, tm.rating\n" +
                         filter;
 
                 statement = conn.prepareStatement(query);
                 statement.setString(1, genre);
-                statement.setInt(2, moviesPerPage);
+                statement.setInt(2, moviesPerPageInt);
                 statement.setInt(3, offset);
-            } else {
+            } else if (prefix != null) {
+                if (prefix.equals("*")){
+                    query = "WITH TopMovies AS (\n" +
+                            "    SELECT \n" +
+                            "        m.id, m.title COLLATE utf8mb4_bin AS title, m.year, m.director, r.rating\n" +
+                            "    FROM \n" +
+                            "        movies m\n" +
+                            "    JOIN \n" +
+                            "        ratings r ON m.id = r.movieId\n" +
+                            "    JOIN \n" +
+                            "        genres_in_movies gm ON m.id = gm.movieId\n" +
+                            "    JOIN \n" +
+                            "        genres g ON gm.genreId = g.id\n" +
+                            "    WHERE \n" +
+                            "        m.title REGEXP '[^A-Za-z0-9]'\n" +
+                            filter  +
+                            "    LIMIT ? OFFSET ?\n" +
+                            ")\n" +
+                            "SELECT \n" +
+                            "    tm.id,\n" +
+                            "    tm.title,\n" +
+                            "    tm.year,\n" +
+                            "    tm.director,\n" +
+                            "    tm.rating,\n" +
+                            "    REPLACE(GROUP_CONCAT(DISTINCT g.name SEPARATOR ', '), ',', ', ') AS genres,\n" +
+                            "    SUBSTRING_INDEX(\n" +
+                            "        GROUP_CONCAT(DISTINCT CONCAT(s.name, ':', s.id) ORDER BY star_count DESC, s.name ASC SEPARATOR ', '),\n" +
+                            "        ', ', 3\n" +
+                            "    ) AS stars\n" +
+                            "FROM \n" +
+                            "    TopMovies tm\n" +
+                            "LEFT JOIN \n" +
+                            "    genres_in_movies gm ON tm.id = gm.movieId\n" +
+                            "LEFT JOIN \n" +
+                            "    genres g ON gm.genreId = g.id\n" +
+                            "LEFT JOIN \n" +
+                            "    stars_in_movies sm ON tm.id = sm.movieId\n" +
+                            "LEFT JOIN \n" +
+                            "    stars s ON sm.starId = s.id\n" +
+                            "LEFT JOIN (\n" +
+                            "    SELECT \n" +
+                            "        sm.starId,\n" +
+                            "        COUNT(sm.movieId) AS star_count\n" +
+                            "    FROM \n" +
+                            "        stars_in_movies sm\n" +
+                            "    GROUP BY \n" +
+                            "        sm.starId\n" +
+                            ") star_counts ON s.id = star_counts.starId\n" +
+                            "GROUP BY \n" +
+                            "    tm.id, tm.title, tm.year, tm.director, tm.rating\n" +
+                            filter;
+
+                    statement = conn.prepareStatement(query);
+                    statement.setInt(1, moviesPerPageInt);
+                    statement.setInt(2, offset);
+                } else {
+                    query = "WITH TopMovies AS (\n" +
+                            "    SELECT \n" +
+                            "        m.id, m.title COLLATE utf8mb4_bin AS title, m.year, m.director, r.rating\n" +
+                            "    FROM \n" +
+                            "        movies m\n" +
+                            "    JOIN \n" +
+                            "        ratings r ON m.id = r.movieId\n" +
+                            "    JOIN \n" +
+                            "        genres_in_movies gm ON m.id = gm.movieId\n" +
+                            "    JOIN \n" +
+                            "        genres g ON gm.genreId = g.id\n" +
+                            "    WHERE \n" +
+                            "        m.title LIKE ?\n" +
+                            filter  +
+                            "    LIMIT ? OFFSET ?\n" +
+                            ")\n" +
+                            "SELECT \n" +
+                            "    tm.id,\n" +
+                            "    tm.title,\n" +
+                            "    tm.year,\n" +
+                            "    tm.director,\n" +
+                            "    tm.rating,\n" +
+                            "    REPLACE(GROUP_CONCAT(DISTINCT g.name SEPARATOR ', '), ',', ', ') AS genres,\n" +
+                            "    SUBSTRING_INDEX(\n" +
+                            "        GROUP_CONCAT(DISTINCT CONCAT(s.name, ':', s.id) ORDER BY star_count DESC, s.name ASC SEPARATOR ', '),\n" +
+                            "        ', ', 3\n" +
+                            "    ) AS stars\n" +
+                            "FROM \n" +
+                            "    TopMovies tm\n" +
+                            "LEFT JOIN \n" +
+                            "    genres_in_movies gm ON tm.id = gm.movieId\n" +
+                            "LEFT JOIN \n" +
+                            "    genres g ON gm.genreId = g.id\n" +
+                            "LEFT JOIN \n" +
+                            "    stars_in_movies sm ON tm.id = sm.movieId\n" +
+                            "LEFT JOIN \n" +
+                            "    stars s ON sm.starId = s.id\n" +
+                            "LEFT JOIN (\n" +
+                            "    SELECT \n" +
+                            "        sm.starId,\n" +
+                            "        COUNT(sm.movieId) AS star_count\n" +
+                            "    FROM \n" +
+                            "        stars_in_movies sm\n" +
+                            "    GROUP BY \n" +
+                            "        sm.starId\n" +
+                            ") star_counts ON s.id = star_counts.starId\n" +
+                            "GROUP BY \n" +
+                            "    tm.id, tm.title, tm.year, tm.director, tm.rating\n" +
+                            filter;
+
+                    statement = conn.prepareStatement(query);
+                    statement.setString(1, prefix + "%");
+                    statement.setInt(2, moviesPerPageInt);
+                    statement.setInt(3, offset);
+                }
+
+            }
+            else {
                 statement = conn.prepareStatement("");
             }
 

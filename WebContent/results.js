@@ -9,17 +9,30 @@
  */
 
 
-let currentPage = 1;
+let urlParams = new URLSearchParams(window.location.search);
+let currentPage = parseInt(urlParams.get("pageNumber")) || 1;
 
 
 document.getElementById("nextButton").addEventListener("click", function () {
-    currentPage++; // Increment the currentPage
+    let urlParams = new URLSearchParams(window.location.search);
+
+    currentPage++;
+    urlParams.set("pageNumber", currentPage);
+    window.history.replaceState(null, "", "results.html?" + urlParams.toString());
+
     getMovies();
 });
 
 document.getElementById("prevButton").addEventListener("click", function () {
-    currentPage--; // Increment the currentPage
-    getMovies();
+    let urlParams = new URLSearchParams(window.location.search);
+
+    if (currentPage > 1) {
+        currentPage--;
+        urlParams.set("pageNumber", currentPage);
+        window.history.replaceState(null, "", "results.html?" + urlParams.toString());
+
+        getMovies();
+    }
 });
 
 
@@ -106,9 +119,9 @@ function getMovies() {
     if (star) params.append("star", star);
     if (genre) params.append("genre", genre);
     if (prefix) params.append("prefix", prefix);
-    params.append("pageNumber", pageNumber);
-    params.append("moviesPerPage", moviesPerPage);
-    params.append("sortBy", sortBy);
+    if (pageNumber) params.append("pageNumber", pageNumber);
+    if (moviesPerPage) params.append("moviesPerPage", moviesPerPage);
+    if (sortBy) params.append("sortBy", sortBy);
 
     // Makes the HTTP GET request and registers on success callback function handleStarResult
     jQuery.ajax({

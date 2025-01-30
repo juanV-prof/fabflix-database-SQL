@@ -59,7 +59,6 @@ public class Top20Servlet extends HttpServlet {
                     "        r.rating DESC\n" +
                     "    LIMIT 20\n" +
                     ")\n" +
-                    "-- Fetch genres and stars for these top movies\n" +
                     "SELECT \n" +
                     "    tm.id,\n" +
                     "    tm.title,\n" +
