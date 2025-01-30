@@ -94,6 +94,9 @@
             if (year) queryParams.append("year", year);
             if (director) queryParams.append("director", director);
             if (starsName) queryParams.append("star", starsName);
+            queryParams.append("moviesPerPage", "25");
+            queryParams.append("sortBy", "titleAscRatingAsc");
+            queryParams.append("pageNumber", "1");
 
             window.location.href = "results.html?" + queryParams.toString();
         });

@@ -95,14 +95,14 @@
 
         <label for="sortBy" class="mr-2">Sort by:</label>
         <select id="sortBy" class="form-control form-control-sm mr-3" style="width: auto;">
-            <option value="title_asc">Title ↑, Rating ↑</option>
-            <option value="title_desc">Title ↑, Rating ↓</option>
-            <option value="title_desc_rating_asc">Title ↓, Rating ↑</option>
-            <option value="title_desc_rating_desc">Title ↓, Rating ↓</option>
-            <option value="rating_asc_title_asc">Rating ↑, Title ↑</option>
-            <option value="rating_asc_title_desc">Rating ↑, Title ↓</option>
-            <option value="rating_desc_title_asc">Rating ↓, Title ↑</option>
-            <option value="rating_desc_title_desc">Rating ↓, Title ↓</option>
+            <option value="titleAscRatingAsc" selected>Title ↑, Rating ↑</option>
+            <option value="titleAscRatingDesc">Title ↑, Rating ↓</option>
+            <option value="titleDescRatingAsc">Title ↓, Rating ↑</option>
+            <option value="titleDescRatingDesc">Title ↓, Rating ↓</option>
+            <option value="ratingAscTitleAsc">Rating ↑, Title ↑</option>
+            <option value="ratingAscTitleDesc">Rating ↑, Title ↓</option>
+            <option value="ratingDescTitleAsc">Rating ↓, Title ↑</option>
+            <option value="ratingDescTitleDesc">Rating ↓, Title ↓</option>
         </select>
 
         <button id="sortButton" class="btn btn-primary btn-sm">Sort</button>
@@ -155,6 +155,9 @@
             if (year) queryParams.append("year", year);
             if (director) queryParams.append("director", director);
             if (starsName) queryParams.append("star", starsName);
+            queryParams.append("moviesPerPage", "25");
+            queryParams.append("sortBy", "titleAscRatingAsc");
+            queryParams.append("pageNumber", "1");
 
             window.location.href = "results.html?" + queryParams.toString();
         });
