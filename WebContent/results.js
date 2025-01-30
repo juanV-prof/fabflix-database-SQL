@@ -88,10 +88,6 @@ function handleMovieListResults(resultData) {
 
 function getMovies() {
     let params = new URLSearchParams();
-    let moviesPerPage = $("#moviesPerPage").val();
-
-    params.append("page", currentPage);
-    params.append("moviesPerPage", moviesPerPage);
 
     let urlParams = new URLSearchParams(window.location.search);
     let title = urlParams.get("title");
@@ -100,6 +96,9 @@ function getMovies() {
     let star = urlParams.get("star");
     let genre = urlParams.get("genre");
     let prefix = urlParams.get("prefix");
+    let pageNumber = urlParams.get("pageNumber");
+    let moviesPerPage = urlParams.get("moviesPerPage")
+    let sortBy = urlParams.get("sortBy")
 
     if (title) params.append("title", title);
     if (director) params.append("director", director);
@@ -107,6 +106,9 @@ function getMovies() {
     if (star) params.append("star", star);
     if (genre) params.append("genre", genre);
     if (prefix) params.append("prefix", prefix);
+    params.append("pageNumber", pageNumber);
+    params.append("moviesPerPage", moviesPerPage);
+    params.append("sortBy", sortBy);
 
     // Makes the HTTP GET request and registers on success callback function handleStarResult
     jQuery.ajax({

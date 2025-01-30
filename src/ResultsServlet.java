@@ -77,15 +77,20 @@ public class ResultsServlet extends HttpServlet {
             if (genre != null) {
                 query = "WITH TopMovies AS (\n" +
                         "    SELECT \n" +
-                        "        m.id, m.title, m.year, m.director, r.rating\n" +
+                        "        m.id, m.title COLLATE utf8mb4_bin AS title, m.year, m.director, r.rating\n" +
                         "    FROM \n" +
                         "        movies m\n" +
                         "    JOIN \n" +
                         "        ratings r ON m.id = r.movieId\n" +
+                        "    JOIN \n" +
+                        "        genres_in_movies gm ON m.id = gm.movieId\n" +
+                        "    JOIN \n" +
+                        "        genres g ON gm.genreId = g.id\n" +
+                        "    WHERE \n" +
+                        "        g.name = ?\n" +
                         filter +
                         "    LIMIT ? OFFSET ?\n" +
                         ")\n" +
-                        "-- Fetch genres and stars for these top movies\n" +
                         "SELECT \n" +
                         "    tm.id,\n" +
                         "    tm.title,\n" +
@@ -112,14 +117,15 @@ public class ResultsServlet extends HttpServlet {
                         filter;
 
                 statement = conn.prepareStatement(query);
-                statement.setInt(1, moviesPerPage);
-                statement.setInt(2, offset);
+                statement.setString(1, genre);
+                statement.setInt(2, moviesPerPage);
+                statement.setInt(3, offset);
             } else {
                 statement = conn.prepareStatement("");
             }
 
             // Perform the query
-            ResultSet rs = statement.executeQuery(query);
+            ResultSet rs = statement.executeQuery();
 
             JsonArray jsonArray = new JsonArray();
 
