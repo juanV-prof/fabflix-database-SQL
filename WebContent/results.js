@@ -112,7 +112,7 @@ function getMovies() {
     jQuery.ajax({
         dataType: "json", // Setting return data type
         method: "GET", // Setting request method
-        url: `api/movie_list?${params.toString()}`, // Setting request url, which is mapped by movie_list in MovieListServlet.java
+        url: `api/results?${params.toString()}`, // Setting request url, which is mapped by results in ResultsServlet.java
         success: (resultData) => handleMovieListResults(resultData) // Setting callback function to handle data returned successfully by the MovieListServlet
     });
 }

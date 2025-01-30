@@ -14,8 +14,32 @@
 </head>
 <body>
 <!-- Top Bar -->
-<nav class="navbar" style="background: linear-gradient(135deg, #438DD3, #72B9CF);">
+<nav class="navbar navbar-expand-lg" style="background: linear-gradient(135deg, #438DD3, #72B9CF);">
     <a class="navbar-brand" href="main_page.html" style="color: white;">Home</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item">
+                <a class="nav-link" href="top20.html" style="color: white;">Top 20</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="results.html" style="color: white;">Results</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="checkout.html" style="color: white;">Checkout</a>
+            </li>
+        </ul>
+        <!-- Search form -->
+        <form class="form-inline my-2 my-lg-0">
+            <input class="form-control mr-sm-2" type="text" placeholder="Title" aria-label="Title" id="searchTitle">
+            <input class="form-control mr-sm-2" type="text" placeholder="Year" aria-label="Year" id="searchYear">
+            <input class="form-control mr-sm-2" type="text" placeholder="Director" aria-label="Director" id="searchDirector">
+            <input class="form-control mr-sm-2" type="text" placeholder="Star's Name" aria-label="StarsName" id="searchStarsName">
+            <button class="btn btn-outline-light my-2 my-sm-0" type="button" id="searchButton">Search</button>
+        </form>
+    </div>
 </nav>
 
 <div class="container mt-4">
@@ -45,5 +69,25 @@
 
 <!-- Load our own JS file -->
 <script src="movie.js"></script>
+
+<script>
+    $(document).ready(function() {
+        $("#searchButton").click(function() {
+            let title = $("#searchTitle").val();
+            let year = $("#searchYear").val();
+            let director = $("#searchDirector").val();
+            let starsName = $("#searchStarsName").val();
+
+            let queryParams = new URLSearchParams();
+            if (title) queryParams.append("title", title);
+            if (year) queryParams.append("year", year);
+            if (director) queryParams.append("director", director);
+            if (starsName) queryParams.append("star", starsName);
+
+            window.location.href = "results.html?" + queryParams.toString();
+        });
+    });
+</script>
+
 </body>
 </html>

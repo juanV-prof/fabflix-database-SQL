@@ -25,7 +25,7 @@
                 <a class="nav-link" href="top20.html" style="color: white;">Top 20</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="movie_list.html" style="color: white;">Result</a>
+                <a class="nav-link" href="results.html" style="color: white;">Results</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="checkout.html" style="color: white;">Checkout</a>
@@ -81,7 +81,7 @@
 
                 genres.forEach(genre => {
                     const genreItem = $('<li class="list-inline-item"></li>');
-                    genreItem.append(`<a href="movie_list.html?genre=${encodeURIComponent(genre)}" class="btn btn-link">${genre}</a>`);
+                    genreItem.append(`<a href="results.html?genre=${encodeURIComponent(genre)}" class="btn btn-link">${genre}</a>`);
                     genreList.append(genreItem);
                 });
             }
@@ -95,18 +95,18 @@
 
             alphabet.forEach(letter => {
                 const alphabetItem = $('<li class="list-inline-item"></li>');
-                alphabetItem.append(`<a href="movie_list.html?prefix=${letter}" class="btn btn-link">${letter}</a>`);
+                alphabetItem.append(`<a href="results.html?prefix=${letter}" class="btn btn-link">${letter}</a>`);
                 alphabetList.append(alphabetItem);
             });
 
             numbers.forEach(number => {
                 const numberItem = $('<li class="list-inline-item"></li>');
-                numberItem.append(`<a href="movie_list.html?prefix=${number}" class="btn btn-link">${number}</a>`);
+                numberItem.append(`<a href="results.html?prefix=${number}" class="btn btn-link">${number}</a>`);
                 alphabetList.append(numberItem);
             });
 
             const nonAlphanumericItem = $('<li class="list-inline-item"></li>');
-            nonAlphanumericItem.append(`<a href="movie_list.html?prefix=*" class="btn btn-link">*</a>`);
+            nonAlphanumericItem.append(`<a href="results.html?prefix=*" class="btn btn-link">*</a>`);
             alphabetList.append(nonAlphanumericItem);
         };
 
@@ -124,7 +124,7 @@
             if (director) queryParams.append("director", director);
             if (starsName) queryParams.append("star", starsName);
 
-            window.location.href = "movie_list.html?" + queryParams.toString();
+            window.location.href = "results.html?" + queryParams.toString();
         });
     });
 </script>

@@ -25,7 +25,7 @@
                 <a class="nav-link" href="top20.html" style="color: white;">Top 20</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="results.html" style="color: white;">Result</a>
+                <a class="nav-link" href="results.html" style="color: white;">Results</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="checkout.html" style="color: white;">Checkout</a>
@@ -71,5 +71,25 @@
 
 <!-- Load our own JS file -->
 <script src="top20.js"></script>
+
+<script>
+    $(document).ready(function() {
+        $("#searchButton").click(function() {
+            let title = $("#searchTitle").val();
+            let year = $("#searchYear").val();
+            let director = $("#searchDirector").val();
+            let starsName = $("#searchStarsName").val();
+
+            let queryParams = new URLSearchParams();
+            if (title) queryParams.append("title", title);
+            if (year) queryParams.append("year", year);
+            if (director) queryParams.append("director", director);
+            if (starsName) queryParams.append("star", starsName);
+
+            window.location.href = "results.html?" + queryParams.toString();
+        });
+    });
+</script>
+
 </body>
 </html>
