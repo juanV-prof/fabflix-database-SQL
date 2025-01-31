@@ -27,11 +27,35 @@ function handleMovieResult(resultData) {
     rowHTML += "<th>" + starLinks.join(', ') + "</th>";
 
     rowHTML += "<th>" + movieData["rating"] + "</th>";
+
+    rowHTML += `<th>
+        <button class="add-button" data-movie-id="${movieData["movie_id"]}">add</button>
+    </th>`;
+
     rowHTML += "</tr>";
 
     // Append the generated HTML to the table body
     movieTableBodyElement.append(rowHTML);
 }
+
+$(document).ready(function () {
+    // When add on a movie is clicked
+    $(document).on("click", ".add-button", function () {
+        let movieId = $(this).data("movie_id");
+
+        $.ajax({
+            type: "POST",
+            url: "api/cart",
+            data: { movieId: movieId },
+            success: function (response) {
+                alert("Movie added to cart!");
+            },
+            error: function () {
+                alert("Failed to add movie to cart.");
+            }
+        });
+    });
+});
 
 
 /**

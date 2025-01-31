@@ -16,7 +16,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 
@@ -107,7 +109,6 @@ public class ResultsServlet extends HttpServlet {
             session.setAttribute("pageNumber", pageNumber);
         } else {
             // No parameters are provided, retrieve everything from the session
-            System.out.println("IT GOES IN HERE");
             genre = (String) session.getAttribute("genre");
             prefix = (String) session.getAttribute("prefix");
             title = (String) session.getAttribute("title");
@@ -236,8 +237,8 @@ public class ResultsServlet extends HttpServlet {
                             "    JOIN \n" +
                             "        ratings r ON m.id = r.movieId\n" +
                             "    WHERE \n" +
-                            "        m.title LIKE ?\n" +  // Prefix filtering
-                            "    " + filter + "\n" +     // Sorting dynamically set
+                            "        m.title LIKE ?\n" +
+                            "    " + filter + "\n" +
                             "    LIMIT ? OFFSET ?\n" +
                             ")\n" +
                             "SELECT \n" +
@@ -272,12 +273,82 @@ public class ResultsServlet extends HttpServlet {
 
                 }
 
-            }
-            else {
-                statement = conn.prepareStatement("");
+            } else {
+                StringBuilder searchQuery = new StringBuilder(
+                        "WITH TopMovies AS (\n" +
+                                "    SELECT \n" +
+                                "        m.id, m.title, m.year, m.director, r.rating\n" +
+                                "    FROM \n" +
+                                "        movies m\n" +
+                                "    JOIN \n" +
+                                "        ratings r ON m.id = r.movieId\n");
+
+                List<String> conditions = new ArrayList<>();
+                List<Object> parameters = new ArrayList<>();
+
+                if (title != null && !title.isEmpty()) {
+                    conditions.add("m.title LIKE ?");
+                    parameters.add("%" + title + "%");
+                }
+                if (year != null && !year.isEmpty()) {
+                    conditions.add("m.year = ?");
+                    parameters.add(year);
+                }
+                if (director != null && !director.isEmpty()) {
+                    conditions.add("m.director LIKE ?");
+                    parameters.add("%" + director + "%");
+                }
+                if (star != null && !star.isEmpty()) {
+                    searchQuery.append("    JOIN stars_in_movies sm ON m.id = sm.movieId\n" +
+                            "    JOIN stars s ON sm.starId = s.id\n");
+                    conditions.add("s.name LIKE ?");
+                    parameters.add("%" + star + "%");
+                }
+
+                if (!conditions.isEmpty()) {
+                    searchQuery.append("    WHERE " + String.join(" AND ", conditions) + "\n");
+                }
+
+                searchQuery.append("    " + filter + "\n");
+
+                searchQuery.append(
+                        ")\n" +
+                                "SELECT \n" +
+                                "    tm.id,\n" +
+                                "    tm.title,\n" +
+                                "    tm.year,\n" +
+                                "    tm.director,\n" +
+                                "    tm.rating,\n" +
+                                "    REPLACE(GROUP_CONCAT(DISTINCT g.name SEPARATOR ', '), ',', ', ') AS genres,\n" +
+                                "    SUBSTRING_INDEX(\n" +
+                                "        GROUP_CONCAT(DISTINCT CONCAT(s.name, ':', s.id) SEPARATOR ', '),\n" +
+                                "        ', ', 3\n" +
+                                "    ) AS stars\n" +
+                                "FROM \n" +
+                                "    TopMovies tm\n" +
+                                "LEFT JOIN \n" +
+                                "    genres_in_movies gm ON tm.id = gm.movieId\n" +
+                                "LEFT JOIN \n" +
+                                "    genres g ON gm.genreId = g.id\n" +
+                                "LEFT JOIN \n" +
+                                "    stars_in_movies sm ON tm.id = sm.movieId\n" +
+                                "LEFT JOIN \n" +
+                                "    stars s ON sm.starId = s.id\n" +
+                                "GROUP BY \n" +
+                                "    tm.id, tm.title, tm.year, tm.director, tm.rating\n" +
+                                filter + "\n" +
+                                "LIMIT ? OFFSET ?;");
+
+                statement = conn.prepareStatement(searchQuery.toString());
+
+                int paramIndex = 1;
+                for (Object param : parameters) {
+                    statement.setObject(paramIndex++, param);
+                }
+                statement.setInt(paramIndex++, moviesPerPageInt);
+                statement.setInt(paramIndex, offset);
             }
 
-            // Perform the query
             ResultSet rs = statement.executeQuery();
 
             JsonArray jsonArray = new JsonArray();

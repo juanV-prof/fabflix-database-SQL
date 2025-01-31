@@ -3,7 +3,9 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
+import java.util.HashMap;
 
 @WebServlet(name = "LoginServlet", urlPatterns = "/api/login")
 public class LoginServlet extends HttpServlet {
@@ -22,7 +24,11 @@ public class LoginServlet extends HttpServlet {
             // Login success:
 
             // set this user into the session
+            HttpSession session = request.getSession();
             request.getSession().setAttribute("user", new User(username));
+
+            HashMap<String, Integer> cart = new HashMap<>();
+            session.setAttribute("cart", cart);
 
             responseJsonObject.addProperty("status", "success");
             responseJsonObject.addProperty("message", "success");
@@ -33,7 +39,7 @@ public class LoginServlet extends HttpServlet {
             // Log to localhost log
             request.getServletContext().log("Login failed");
             // sample error messages. in practice, it is not a good idea to tell user which one is incorrect/not exist.
-            if (!username.equals("anteater")) {
+            if (!username.equals("a@email.com")) {
                 responseJsonObject.addProperty("message", "user " + username + " doesn't exist");
             } else {
                 responseJsonObject.addProperty("message", "incorrect password");

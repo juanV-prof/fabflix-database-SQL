@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="en">
 <head>
@@ -10,24 +11,25 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
           integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 
-    <title>Top 20 Rated Movies</title>
+    <title>Checkout</title>
     <style>
-        .add-button {
-            background-color: white;
-            border: 2px solid #438DD3;
-            color: #438DD3;
-            padding: 5px 10px;
+        .my-button {
+            background-color: #438DD3;
+            border-color: #438DD3;
+            color: white;
+            padding: 10px 20px;
+            border: none;
             border-radius: 5px;
-            font-weight: bold;
             cursor: pointer;
-            transition: all 0.3s ease;
         }
 
-        .add-button:hover {
+        .my-button:hover {
             background-color: #438DD3;
             color: white;
         }
+
     </style>
+
 </head>
 <body>
 <!-- Top Bar -->
@@ -60,26 +62,29 @@
 </nav>
 
 <div class="container mt-4">
-    <h1>Top 20 Rated Movies</h1>
+    <h1>Shopping Cart</h1>
 
-    <!-- Id "star_table" is useful for jQuery to find the html element with id, class here is mapping to Bootstrap defined class CSS -->
-    <table id="top20_table" class="table table-striped">
+    <table id="cart_table" class="table table-striped">
         <!-- Create a table header -->
         <thead>
         <tr>
             <!-- Titles of each column-->
             <th>Title</th>
-            <th>Year</th>
-            <th>Director</th>
-            <th>Genres</th>
-            <th>Stars</th>
-            <th>Rating</th>
-            <th>Cart</th>
+            <th>Quantity</th>
+            <th>Delete</th>
+            <th>Price</th>
+            <th>Total</th>
         </tr>
         </thead>
         <!-- Table body is left empty here, will be populated with the data retrieved with top20.js -->
-        <tbody id="top20_table_body"></tbody>
+        <tbody id="cart_table_body"></tbody>
     </table>
+
+
+    <div class="d-flex justify-content-between align-items-center">
+        <button class="my-button" id="payButton">Proceed to Payment</button>
+        <span id="total" style="font-size: 18px;" >0</span>
+    </div>
 </div>
 
 <!-- Load jQuery and Bootstrap JS -->
@@ -88,29 +93,7 @@
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
 
 <!-- Load our own JS file -->
-<script src="top20.js"></script>
-
-<script>
-    $(document).ready(function() {
-        $("#searchButton").click(function() {
-            let title = $("#searchTitle").val();
-            let year = $("#searchYear").val();
-            let director = $("#searchDirector").val();
-            let starsName = $("#searchStarsName").val();
-
-            let queryParams = new URLSearchParams();
-            if (title) queryParams.append("title", title);
-            if (year) queryParams.append("year", year);
-            if (director) queryParams.append("director", director);
-            if (starsName) queryParams.append("star", starsName);
-            queryParams.append("moviesPerPage", "25");
-            queryParams.append("sortBy", "titleAscRatingAsc");
-            queryParams.append("pageNumber", "1");
-
-            window.location.href = "results.html?" + queryParams.toString();
-        });
-    });
-</script>
+<script src="checkout.js"></script>
 
 </body>
 </html>

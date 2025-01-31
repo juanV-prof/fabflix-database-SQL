@@ -55,6 +55,25 @@ document.getElementById("prevButton").addEventListener("click", function () {
     }
 });
 
+$(document).ready(function () {
+    // When add on a movie is clicked
+    $(document).on("click", ".add-button", function () {
+        let movieId = $(this).data("movie_id");
+
+        $.ajax({
+            type: "POST",
+            url: "api/cart",
+            data: { movieId: movieId },
+            success: function (response) {
+                alert("Movie added to cart!");
+            },
+            error: function () {
+                alert("Failed to add movie to cart.");
+            }
+        });
+    });
+});
+
 
 /**
  * Handles the data returned by the API, read the jsonObject and populate data into html elements
@@ -80,7 +99,13 @@ function handleMovieListResults(resultData) {
 
         rowHTML += "<th>" + resultData[i]["year"] + "</th>";
         rowHTML += "<th>" + resultData[i]["director"] + "</th>";
-        rowHTML += "<th>" + resultData[i]["genres"] + "</th>";
+
+        let genres = resultData[i]["genres"].split(', ');
+        let genreLinks = genres.map(genre =>
+            "<a href='results.html?genre=" + encodeURIComponent(genre.trim()) +
+            "&moviesPerPage=25&sortBy=titleAscRatingAsc&pageNumber=1'>" + genre + "</a>"
+        );
+        rowHTML += "<th>" + genreLinks.join(', ') + "</th>";
 
         let stars = resultData[i]["stars"].split(', ');
         let starLinks = stars.map(star => {

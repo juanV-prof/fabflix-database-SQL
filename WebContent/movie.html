@@ -11,6 +11,23 @@
           integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 
     <title></title>
+    <style>
+        .add-button {
+            background-color: white;
+            border: 2px solid #438DD3;
+            color: #438DD3;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .add-button:hover {
+            background-color: #438DD3;
+            color: white;
+        }
+    </style>
 </head>
 <body>
 <!-- Top Bar -->
@@ -55,6 +72,7 @@
             <th>Genres</th>
             <th>Stars</th>
             <th>Rating</th>
+            <th>Cart</th>
         </tr>
         </thead>
         <!-- Table body is left empty here, will be populated with the data retrieved with top20.js -->
