@@ -10,7 +10,21 @@
 
 
 let urlParams = new URLSearchParams(window.location.search);
-let currentPage = parseInt(urlParams.get("pageNumber")) || 1;
+let currentPage;
+
+// If pageNumber is in URL, use it; otherwise, check sessionStorage
+if (urlParams.has("pageNumber")) {
+    currentPage = parseInt(urlParams.get("pageNumber")) || 1;
+    sessionStorage.setItem("pageNumber", currentPage);
+} else {
+    let storedPage = sessionStorage.getItem("pageNumber");
+    currentPage = storedPage ? parseInt(storedPage) : 1;
+    sessionStorage.setItem("pageNumber", currentPage);
+}
+
+// Update URL to ensure pageNumber is always present
+urlParams.set("pageNumber", currentPage);
+window.history.replaceState(null, "", "results.html?" + urlParams.toString());
 
 
 document.getElementById("nextButton").addEventListener("click", function () {
@@ -18,6 +32,9 @@ document.getElementById("nextButton").addEventListener("click", function () {
 
     currentPage++;
     urlParams.set("pageNumber", currentPage);
+
+    sessionStorage.setItem("pageNumber", currentPage); // Store it
+
     window.history.replaceState(null, "", "results.html?" + urlParams.toString());
 
     getMovies();
@@ -29,6 +46,9 @@ document.getElementById("prevButton").addEventListener("click", function () {
     if (currentPage > 1) {
         currentPage--;
         urlParams.set("pageNumber", currentPage);
+
+        sessionStorage.setItem("pageNumber", currentPage); // Store it
+
         window.history.replaceState(null, "", "results.html?" + urlParams.toString());
 
         getMovies();

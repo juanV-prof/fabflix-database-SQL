@@ -172,7 +172,6 @@
             params.set("sortBy", sortBy);
             params.set("pageNumber", "1");
 
-            // Update URL without reloading
             history.replaceState(null, "", "results.html?" + params.toString());
 
             getMovies();
@@ -185,28 +184,28 @@
         const moviesPerPageDropdown = document.getElementById("moviesPerPage");
         const sortByDropdown = document.getElementById("sortBy");
 
-        const defaultMoviesPerPage = "25";
-        const defaultSortBy = "titleAscRatingAsc";
-
         const urlParams = new URLSearchParams(window.location.search);
         const hasMoviesPerPage = urlParams.has("moviesPerPage");
         const hasSortBy = urlParams.has("sortBy");
+        const hasPageNumber = urlParams.has("pageNumber");
 
-        if (hasMoviesPerPage && hasSortBy) {
+        if (hasMoviesPerPage && hasSortBy && hasPageNumber) {
             moviesPerPageDropdown.value = urlParams.get("moviesPerPage");
             sortByDropdown.value = urlParams.get("sortBy");
 
             sessionStorage.setItem("moviesPerPage", urlParams.get("moviesPerPage"));
             sessionStorage.setItem("sortBy", urlParams.get("sortBy"));
+            sessionStorage.setItem("pageNumber", urlParams.get("pageNumber"));
         } else {
-            const savedMoviesPerPage = sessionStorage.getItem("moviesPerPage") || defaultMoviesPerPage;
-            const savedSortBy = sessionStorage.getItem("sortBy") || defaultSortBy;
+            const savedMoviesPerPage = sessionStorage.getItem("moviesPerPage");
+            const savedSortBy = sessionStorage.getItem("sortBy");
 
             moviesPerPageDropdown.value = savedMoviesPerPage;
             sortByDropdown.value = savedSortBy;
 
             sessionStorage.setItem("moviesPerPage", savedMoviesPerPage);
             sessionStorage.setItem("sortBy", savedSortBy);
+            sessionStorage.setItem("pageNumber", savedPageNumber);
         }
 
         moviesPerPageDropdown.addEventListener("change", function () {

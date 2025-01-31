@@ -63,27 +63,55 @@ public class ResultsServlet extends HttpServlet {
         String genre = request.getParameter("genre");
         String prefix = request.getParameter("prefix");
         String title = request.getParameter("title");
+        String director = request.getParameter("director");
         String year = request.getParameter("year");
         String star = request.getParameter("star");
         String sortBy = request.getParameter("sortBy");
         String moviesPerPage = request.getParameter("moviesPerPage");
         String pageNumber = request.getParameter("pageNumber");
 
-        if (genre != null || prefix != null || title != null || year != null || star != null || sortBy != null || moviesPerPage != null || pageNumber != null) {
-            System.out.println("IT SETS ATTRIBUTES");
+        if (pageNumber != null && moviesPerPage != null && sortBy != null && genre == null && prefix == null && title == null && year == null && star == null) {
+            // Only pageNumber, moviesPerPage, and sortBy are provided
+            session.setAttribute("pageNumber", pageNumber);
+            session.setAttribute("moviesPerPage", moviesPerPage);
+            session.setAttribute("sortBy", sortBy);
+
+            genre = (String) session.getAttribute("genre");
+            prefix = (String) session.getAttribute("prefix");
+            title = (String) session.getAttribute("title");
+            director = (String) session.getAttribute("director");
+            year = (String) session.getAttribute("year");
+            star = (String) session.getAttribute("star");
+        } else if (pageNumber != null && genre == null && prefix == null && title == null && year == null && star == null && sortBy == null && moviesPerPage == null) {
+            // Only pageNumber is provided
+            session.setAttribute("pageNumber", pageNumber);
+
+            genre = (String) session.getAttribute("genre");
+            prefix = (String) session.getAttribute("prefix");
+            title = (String) session.getAttribute("title");
+            director = (String) session.getAttribute("director");
+            year = (String) session.getAttribute("year");
+            star = (String) session.getAttribute("star");
+            sortBy = (String) session.getAttribute("sortBy");
+            moviesPerPage = (String) session.getAttribute("moviesPerPage");
+        } else if (genre != null || prefix != null || title != null || year != null || star != null || sortBy != null || moviesPerPage != null || pageNumber != null) {
+            // Original logic for setting attributes
             session.setAttribute("genre", genre);
             session.setAttribute("prefix", prefix);
             session.setAttribute("title", title);
+            session.setAttribute("director", director);
             session.setAttribute("year", year);
             session.setAttribute("star", star);
             session.setAttribute("sortBy", sortBy);
             session.setAttribute("moviesPerPage", moviesPerPage);
             session.setAttribute("pageNumber", pageNumber);
         } else {
+            // No parameters are provided, retrieve everything from the session
             System.out.println("IT GOES IN HERE");
             genre = (String) session.getAttribute("genre");
             prefix = (String) session.getAttribute("prefix");
             title = (String) session.getAttribute("title");
+            director = (String) session.getAttribute("director");
             year = (String) session.getAttribute("year");
             star = (String) session.getAttribute("star");
             sortBy = (String) session.getAttribute("sortBy");
@@ -166,13 +194,9 @@ public class ResultsServlet extends HttpServlet {
                             "        movies m\n" +
                             "    JOIN \n" +
                             "        ratings r ON m.id = r.movieId\n" +
-                            "    JOIN \n" +
-                            "        genres_in_movies gm ON m.id = gm.movieId\n" +
-                            "    JOIN \n" +
-                            "        genres g ON gm.genreId = g.id\n" +
                             "    WHERE \n" +
-                            "        m.title REGEXP '[^A-Za-z0-9]'\n" +
-                            filter  +
+                            "        m.title REGEXP '^[^A-Za-z0-9]'\n" +  // Prefix filtering
+                            "    " + filter + "\n" +     // Sorting dynamically set
                             "    LIMIT ? OFFSET ?\n" +
                             ")\n" +
                             "SELECT \n" +
@@ -183,7 +207,7 @@ public class ResultsServlet extends HttpServlet {
                             "    tm.rating,\n" +
                             "    REPLACE(GROUP_CONCAT(DISTINCT g.name SEPARATOR ', '), ',', ', ') AS genres,\n" +
                             "    SUBSTRING_INDEX(\n" +
-                            "        GROUP_CONCAT(DISTINCT CONCAT(s.name, ':', s.id) ORDER BY star_count DESC, s.name ASC SEPARATOR ', '),\n" +
+                            "        GROUP_CONCAT(DISTINCT CONCAT(s.name, ':', s.id) ORDER BY s.name ASC SEPARATOR ', '),\n" +
                             "        ', ', 3\n" +
                             "    ) AS stars\n" +
                             "FROM \n" +
@@ -196,18 +220,9 @@ public class ResultsServlet extends HttpServlet {
                             "    stars_in_movies sm ON tm.id = sm.movieId\n" +
                             "LEFT JOIN \n" +
                             "    stars s ON sm.starId = s.id\n" +
-                            "LEFT JOIN (\n" +
-                            "    SELECT \n" +
-                            "        sm.starId,\n" +
-                            "        COUNT(sm.movieId) AS star_count\n" +
-                            "    FROM \n" +
-                            "        stars_in_movies sm\n" +
-                            "    GROUP BY \n" +
-                            "        sm.starId\n" +
-                            ") star_counts ON s.id = star_counts.starId\n" +
                             "GROUP BY \n" +
                             "    tm.id, tm.title, tm.year, tm.director, tm.rating\n" +
-                            filter;
+                            filter + ";";
 
                     statement = conn.prepareStatement(query);
                     statement.setInt(1, moviesPerPageInt);
@@ -220,13 +235,9 @@ public class ResultsServlet extends HttpServlet {
                             "        movies m\n" +
                             "    JOIN \n" +
                             "        ratings r ON m.id = r.movieId\n" +
-                            "    JOIN \n" +
-                            "        genres_in_movies gm ON m.id = gm.movieId\n" +
-                            "    JOIN \n" +
-                            "        genres g ON gm.genreId = g.id\n" +
                             "    WHERE \n" +
-                            "        m.title LIKE ?\n" +
-                            filter  +
+                            "        m.title LIKE ?\n" +  // Prefix filtering
+                            "    " + filter + "\n" +     // Sorting dynamically set
                             "    LIMIT ? OFFSET ?\n" +
                             ")\n" +
                             "SELECT \n" +
@@ -237,7 +248,7 @@ public class ResultsServlet extends HttpServlet {
                             "    tm.rating,\n" +
                             "    REPLACE(GROUP_CONCAT(DISTINCT g.name SEPARATOR ', '), ',', ', ') AS genres,\n" +
                             "    SUBSTRING_INDEX(\n" +
-                            "        GROUP_CONCAT(DISTINCT CONCAT(s.name, ':', s.id) ORDER BY star_count DESC, s.name ASC SEPARATOR ', '),\n" +
+                            "        GROUP_CONCAT(DISTINCT CONCAT(s.name, ':', s.id) ORDER BY s.name ASC SEPARATOR ', '),\n" +
                             "        ', ', 3\n" +
                             "    ) AS stars\n" +
                             "FROM \n" +
@@ -250,23 +261,15 @@ public class ResultsServlet extends HttpServlet {
                             "    stars_in_movies sm ON tm.id = sm.movieId\n" +
                             "LEFT JOIN \n" +
                             "    stars s ON sm.starId = s.id\n" +
-                            "LEFT JOIN (\n" +
-                            "    SELECT \n" +
-                            "        sm.starId,\n" +
-                            "        COUNT(sm.movieId) AS star_count\n" +
-                            "    FROM \n" +
-                            "        stars_in_movies sm\n" +
-                            "    GROUP BY \n" +
-                            "        sm.starId\n" +
-                            ") star_counts ON s.id = star_counts.starId\n" +
                             "GROUP BY \n" +
                             "    tm.id, tm.title, tm.year, tm.director, tm.rating\n" +
-                            filter;
+                            filter + ";";  // Apply the correct sorting dynamically
 
                     statement = conn.prepareStatement(query);
-                    statement.setString(1, prefix + "%");
+                    statement.setString(1, prefix + "%");  // Prefix search
                     statement.setInt(2, moviesPerPageInt);
                     statement.setInt(3, offset);
+
                 }
 
             }
@@ -284,7 +287,7 @@ public class ResultsServlet extends HttpServlet {
                 String movie_id = rs.getString("id");
                 String resTitle = rs.getString("title");
                 String resYear = rs.getString("year");
-                String director = rs.getString("director");
+                String resDirector = rs.getString("director");
                 String genres = rs.getString("genres"); // Comma-separated genres
                 String stars = rs.getString("stars"); // Comma-separated stars
                 Double rating = rs.getDouble("rating");
@@ -294,7 +297,7 @@ public class ResultsServlet extends HttpServlet {
                 jsonObject.addProperty("movie_id", movie_id);
                 jsonObject.addProperty("title", resTitle);
                 jsonObject.addProperty("year", resYear);
-                jsonObject.addProperty("director", director);
+                jsonObject.addProperty("director", resDirector);
                 jsonObject.addProperty("genres", genres);
                 jsonObject.addProperty("stars", stars);
                 jsonObject.addProperty("rating", rating);
