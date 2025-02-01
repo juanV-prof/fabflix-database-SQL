@@ -15,7 +15,6 @@ import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -107,7 +106,6 @@ public class ResultsServlet extends HttpServlet {
             session.setAttribute("sortBy", sortBy);
             session.setAttribute("moviesPerPage", moviesPerPage);
             session.setAttribute("pageNumber", pageNumber);
-            System.out.println("PAGE NUMBER: " + pageNumber);
         } else {
             // No parameters are provided
             genre = (String) session.getAttribute("genre");

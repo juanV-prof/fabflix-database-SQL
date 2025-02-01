@@ -25,6 +25,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 expiryDate: expiryDate,
             },
             success: function (resultData) {
+                console.log("HI")
+                console.log(resultData);
                 if (resultData.success == "true" || resultData.success === true) {
                     window.location.href = "confirmation.html";
                 } else {

@@ -85,6 +85,7 @@ public class ProcessPaymentServlet extends HttpServlet {
                 responseJsonObject.addProperty("success", false);
                 responseJsonObject.addProperty("message", "Credit card information not found.");
                 response.getWriter().write(responseJsonObject.toString());
+                System.out.println(responseJsonObject.toString());
                 return;
             }
 
@@ -121,7 +122,6 @@ public class ProcessPaymentServlet extends HttpServlet {
             responseJsonObject.addProperty("message", "An error occurred: " + e.getMessage());
             response.setStatus(500);
         } finally {
-            response.getWriter().write(responseJsonObject.toString());
             out.close();
         }
 

@@ -4,4 +4,17 @@ Partner 2: Alfredo Leon
 
 Both partners met up in person and worked on one computer. Hence, push to Github repo was done mostly by one partner's account.
 
-Project 1 Video: https://youtu.be/HXpH-yLid9k
+Project 2:
+
+Below is the basic substring matching we used for our search.
+
+                if (title != null && !title.isEmpty()) {
+                    conditions.add("m.title LIKE ?");
+                    parameters.add("%" + title + "%");
+                }
+
+Contributions:
+
+Alfredo - Tasks 2 and 4
+
+Juan - Tasks 1 and 3
