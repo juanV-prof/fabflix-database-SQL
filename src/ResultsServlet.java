@@ -107,8 +107,9 @@ public class ResultsServlet extends HttpServlet {
             session.setAttribute("sortBy", sortBy);
             session.setAttribute("moviesPerPage", moviesPerPage);
             session.setAttribute("pageNumber", pageNumber);
+            System.out.println("PAGE NUMBER: " + pageNumber);
         } else {
-            // No parameters are provided, retrieve everything from the session
+            // No parameters are provided
             genre = (String) session.getAttribute("genre");
             prefix = (String) session.getAttribute("prefix");
             title = (String) session.getAttribute("title");
@@ -196,8 +197,8 @@ public class ResultsServlet extends HttpServlet {
                             "    JOIN \n" +
                             "        ratings r ON m.id = r.movieId\n" +
                             "    WHERE \n" +
-                            "        m.title REGEXP '^[^A-Za-z0-9]'\n" +  // Prefix filtering
-                            "    " + filter + "\n" +     // Sorting dynamically set
+                            "        m.title REGEXP '^[^A-Za-z0-9]'\n" +
+                            "    " + filter + "\n" +
                             "    LIMIT ? OFFSET ?\n" +
                             ")\n" +
                             "SELECT \n" +
@@ -264,10 +265,10 @@ public class ResultsServlet extends HttpServlet {
                             "    stars s ON sm.starId = s.id\n" +
                             "GROUP BY \n" +
                             "    tm.id, tm.title, tm.year, tm.director, tm.rating\n" +
-                            filter + ";";  // Apply the correct sorting dynamically
+                            filter + ";";
 
                     statement = conn.prepareStatement(query);
-                    statement.setString(1, prefix + "%");  // Prefix search
+                    statement.setString(1, prefix + "%");
                     statement.setInt(2, moviesPerPageInt);
                     statement.setInt(3, offset);
 
@@ -359,8 +360,8 @@ public class ResultsServlet extends HttpServlet {
                 String resTitle = rs.getString("title");
                 String resYear = rs.getString("year");
                 String resDirector = rs.getString("director");
-                String genres = rs.getString("genres"); // Comma-separated genres
-                String stars = rs.getString("stars"); // Comma-separated stars
+                String genres = rs.getString("genres");
+                String stars = rs.getString("stars");
                 Double rating = rs.getDouble("rating");
 
                 // Create a JsonObject based on the data we retrieve from rs

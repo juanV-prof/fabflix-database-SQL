@@ -12,7 +12,6 @@
 let urlParams = new URLSearchParams(window.location.search);
 let currentPage;
 
-// If pageNumber is in URL, use it; otherwise, check sessionStorage
 if (urlParams.has("pageNumber")) {
     currentPage = parseInt(urlParams.get("pageNumber")) || 1;
     sessionStorage.setItem("pageNumber", currentPage);
@@ -58,12 +57,12 @@ document.getElementById("prevButton").addEventListener("click", function () {
 $(document).ready(function () {
     // When add on a movie is clicked
     $(document).on("click", ".add-button", function () {
-        let movieId = $(this).data("movie_id");
+        let movieId = $(this).data("movie-id");
 
         $.ajax({
             type: "POST",
             url: "api/cart",
-            data: { movieId: movieId },
+            data: {movieId: movieId, action: "add"},
             success: function (response) {
                 alert("Movie added to cart!");
             },
@@ -126,7 +125,7 @@ function handleMovieListResults(resultData) {
         movieTableBodyElement.append(rowHTML);
     }
 
-    if (currentPage === 1) {
+    if (currentPage === "1" || currentPage === 1) {
         $("#prevButton").prop("disabled", true);
     } else {
         $("#prevButton").prop("disabled", false);
@@ -167,6 +166,8 @@ function getMovies() {
     if (pageNumber) params.append("pageNumber", pageNumber);
     if (moviesPerPage) params.append("moviesPerPage", moviesPerPage);
     if (sortBy) params.append("sortBy", sortBy);
+    currentPage = pageNumber
+    moviesPerPageSelection = moviesPerPage
 
     // Makes the HTTP GET request and registers on success callback function handleStarResult
     jQuery.ajax({

@@ -13,7 +13,7 @@
 
     <title>Payment Information</title>
     <style>
-        .my-button {
+        .pay-button {
             background-color: #438DD3;
             border-color: #438DD3;
             color: white;
@@ -24,7 +24,7 @@
             width: 100%;
         }
 
-        .my-button:hover {
+        .pay-button:hover {
             background-color: #367AB3;
             color: white;
         }
@@ -82,24 +82,24 @@
     <h2 class="text-center font-weight-bold mt-4">Payment Information</h2>
     <h4 class="text-center mt-3">Payment Details</h4>
 
-    <form>
+    <form id="paymentForm">
         <div class="form-group">
-            <input type="text" class="form-control" placeholder="Credit Card Number">
+            <input type="text" class="form-control" id="cardNumber" placeholder="Credit Card Number">
         </div>
         <div class="form-group">
-            <input type="text" class="form-control" placeholder="First Name">
+            <input type="text" class="form-control" id="firstName" placeholder="First Name">
         </div>
         <div class="form-group">
-            <input type="text" class="form-control" placeholder="Last Name">
+            <input type="text" class="form-control" id="lastName" placeholder="Last Name">
         </div>
         <div class="form-group">
-            <input type="date" class="form-control">
+            <input type="date" class="form-control" id="expiryDate">
         </div>
     </form>
 
     <div class="text-center">
         <div id = "total" class="final-payment mb-2">Final Payment: $0</div>
-        <button class="my-button">Place Order</button>
+        <button class="place-order">Place Order</button>
     </div>
 </div>
 
@@ -107,6 +107,8 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+
+<script src="payment.js"></script>
 
 </body>
 </html>

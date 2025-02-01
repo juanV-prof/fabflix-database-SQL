@@ -41,12 +41,12 @@ function handleMovieResult(resultData) {
 $(document).ready(function () {
     // When add on a movie is clicked
     $(document).on("click", ".add-button", function () {
-        let movieId = $(this).data("movie_id");
+        let movieId = $(this).data("movie-id");
 
         $.ajax({
             type: "POST",
             url: "api/cart",
-            data: { movieId: movieId },
+            data: {movieId: movieId, action: "add"},
             success: function (response) {
                 alert("Movie added to cart!");
             },

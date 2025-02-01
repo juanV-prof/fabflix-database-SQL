@@ -20,7 +20,6 @@ function handleStarResult(resultData) {
     // Find the empty table body by id "top20_table_body"
     let movieTableBodyElement = jQuery("#top20_table_body");
 
-    // Iterate through resultData, no more than 10 entries
     for (let i = 0; i < 20; i++) {
         let rowHTML = "<tr>";
 
@@ -55,12 +54,12 @@ function handleStarResult(resultData) {
 $(document).ready(function () {
     // When add on a movie is clicked
     $(document).on("click", ".add-button", function () {
-        let movieId = $(this).data("movie_id");
+        let movieId = $(this).data("movie-id");
 
         $.ajax({
             type: "POST",
             url: "api/cart",
-            data: { movieId: movieId },
+            data: {movieId: movieId, action: "add"},
             success: function (response) {
                 alert("Movie added to cart!");
             },
