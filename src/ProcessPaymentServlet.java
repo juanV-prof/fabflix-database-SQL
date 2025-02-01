@@ -117,6 +117,7 @@ public class ProcessPaymentServlet extends HttpServlet {
             responseJsonObject.addProperty("success", true);
             responseJsonObject.addProperty("customer_id", customerId);
             responseJsonObject.addProperty("redirect", request.getContextPath() + "/confirmation.html");
+            out.write(responseJsonObject.toString());
         } catch (Exception e) {
             responseJsonObject.addProperty("success", false);
             responseJsonObject.addProperty("message", "An error occurred: " + e.getMessage());
