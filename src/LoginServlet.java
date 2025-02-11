@@ -1,14 +1,36 @@
 import com.google.gson.JsonObject;
+import jakarta.servlet.ServletConfig;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import javax.sql.DataSource;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.HashMap;
+import org.jasypt.util.password.StrongPasswordEncryptor;
 
 @WebServlet(name = "LoginServlet", urlPatterns = "/api/login")
 public class LoginServlet extends HttpServlet {
+    private static final long serialVersionUID = 1L;
+
+    // Create a dataSource which registered in web.
+    private DataSource dataSource;
+
+    public void init(ServletConfig config) {
+        try {
+            dataSource = (DataSource) new InitialContext().lookup("java:comp/env/jdbc/moviedb");
+        } catch (NamingException e) {
+            e.printStackTrace();
+        }
+    }
+
     /**
      * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
      */
@@ -31,31 +53,44 @@ public class LoginServlet extends HttpServlet {
             return;
         }
 
-        if (username.equals("a@email.com") && password.equals("a2")) {
-            // Login success:
+        try {
+            boolean validCreds = verifyCredentials(username, password);
 
-            // set this user into the session
-            HttpSession session = request.getSession();
-            request.getSession().setAttribute("user", new User(username));
+            if (validCreds) {
+                HttpSession session = request.getSession();
+                session.setAttribute("user", new User(username));
 
-            HashMap<String, Integer> cart = new HashMap<>();
-            session.setAttribute("cart", cart);
+                HashMap<String, Integer> cart = new HashMap<>();
+                session.setAttribute("cart", cart);
 
-            responseJsonObject.addProperty("status", "success");
-            responseJsonObject.addProperty("message", "success");
-
-        } else {
-            // Login fail
-            responseJsonObject.addProperty("status", "fail");
-            // Log to localhost log
-            request.getServletContext().log("Login failed");
-            // sample error messages. in practice, it is not a good idea to tell user which one is incorrect/not exist.
-            if (!username.equals("a@email.com")) {
-                responseJsonObject.addProperty("message", "user " + username + " doesn't exist");
+                responseJsonObject.addProperty("status", "success");
+                responseJsonObject.addProperty("message", "success");
             } else {
-                responseJsonObject.addProperty("message", "incorrect password");
+                responseJsonObject.addProperty("status", "fail");
+                responseJsonObject.addProperty("message", "Incorrect email or password.");
             }
+        } catch (Exception e) {
+            responseJsonObject.addProperty("status", "fail");
+            responseJsonObject.addProperty("message", "An error occurred: " + e.getMessage());
         }
         response.getWriter().write(responseJsonObject.toString());
+    }
+
+    private boolean verifyCredentials(String username, String password) {
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement statement = connection.prepareStatement("SELECT password FROM customers WHERE email = ?")) {
+
+            statement.setString(1, username);
+            ResultSet rs = statement.executeQuery();
+
+            if (rs.next()) {
+                String encryptedPassword = rs.getString("password");
+                return new StrongPasswordEncryptor().checkPassword(password, encryptedPassword);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return false;
+
     }
 }
