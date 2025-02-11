@@ -46,10 +46,11 @@ public class ConfirmationServlet extends HttpServlet {
         JsonArray jsonArray = new JsonArray();
 
         try (Connection conn = dataSource.getConnection()) {
+            String placeholders = String.join(",", java.util.Collections.nCopies(saleIds.size(), "?"));
             String query = "SELECT s.id AS sale_id, s.movieId, s.quantity, m.title, m.price " +
-                    "FROM sales s " +
-                    "JOIN movies m ON s.movieId = m.id " +
-                    "WHERE s.id IN (" + saleIds.stream().map(id -> "?").reduce((a, b) -> a + "," + b).orElse("") + ")";
+                    "FROM sales s JOIN movies m ON s.movieId = m.id " +
+                    "WHERE s.id IN (" + placeholders + ")";
+
             PreparedStatement statement = conn.prepareStatement(query);
 
             for (int i = 0; i < saleIds.size(); i++) {
