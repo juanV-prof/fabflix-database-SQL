@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+    <title>Fablix</title>
+    <style>
+        .table-container {
+            margin: 20px auto;
+            width: 80%;
+        }
+        .table-header {
+            background: linear-gradient(135deg, #438DD3, #72B9CF);
+            color: white;
+            font-weight: bold;
+        }
+
+        .table-container {
+            margin: 20px auto;
+            width: 80%;
+            text-align: center;
+        }
+
+        .table {
+            margin: auto;
+        }
+
+        .table td, .table th {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+<!-- Top Bar -->
+<nav class="navbar navbar-expand-lg" style="background: linear-gradient(135deg, #438DD3, #72B9CF);">
+    <a class="navbar-brand" href="../main_page.html" style="color: white;">Home</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item">
+                <a class="nav-link" href="add_movie.html" style="color: white;">Add a Movie</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="add_star.html" style="color: white;">Add a Star</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="add_genre.html" style="color: white;">Add a Genre</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="browsing_movies.html" style="color: white;">Browsing Movie</a>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <h1>Metadata</h1>
+
+    <div class="table-container">
+        <h3 class="text-center">creditcards</h3>
+        <table class="table table-bordered">
+            <thead class="table-header">
+            <tr><th>Attribute</th><th>Type</th></tr>
+            </thead>
+            <tbody>
+            <tr><td>id</td><td>VARCHAR</td></tr>
+            <tr><td>firstName</td><td>VARCHAR</td></tr>
+            <tr><td>lastName</td><td>VARCHAR</td></tr>
+            <tr><td>expiration</td><td>DATE</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="table-container">
+        <h3 class="text-center">customers</h3>
+        <table class="table table-bordered">
+            <thead class="table-header">
+            <tr><th>Attribute</th><th>Type</th></tr>
+            </thead>
+            <tbody>
+            <tr><td>id</td><td>INT</td></tr>
+            <tr><td>firstName</td><td>VARCHAR</td></tr>
+            <tr><td>lastName</td><td>VARCHAR</td></tr>
+            <tr><td>cdd</td><td>VARCHAR</td></tr>
+            <tr><td>address</td><td>VARCHAR</td></tr>
+            <tr><td>email</td><td>VARCHAR</td></tr>
+            <tr><td>password</td><td>VARCHAR</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="table-container">
+        <h3 class="text-center">employees</h3>
+        <table class="table table-bordered">
+            <thead class="table-header">
+            <tr><th>Attribute</th><th>Type</th></tr>
+            </thead>
+            <tbody>
+            <tr><td>email</td><td>VARCHAR</td></tr>
+            <tr><td>password</td><td>VARCHAR</td></tr>
+            <tr><td>fullname</td><td>VARCHAR</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="table-container">
+        <h3 class="text-center">genres</h3>
+        <table class="table table-bordered">
+            <thead class="table-header">
+            <tr><th>Attribute</th><th>Type</th></tr>
+            </thead>
+            <tbody>
+            <tr><td>id</td><td>INT</td></tr>
+            <tr><td>name</td><td>VARCHAR</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="table-container">
+        <h3 class="text-center">genres_in_movies</h3>
+        <table class="table table-bordered">
+            <thead class="table-header">
+            <tr><th>Attribute</th><th>Type</th></tr>
+            </thead>
+            <tbody>
+            <tr><td>genereid</td><td>INT</td></tr>
+            <tr><td>movieid</td><td>VARCHAR</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="table-container">
+        <h3 class="text-center">movies</h3>
+        <table class="table table-bordered">
+            <thead class="table-header">
+            <tr><th>Attribute</th><th>Type</th></tr>
+            </thead>
+            <tbody>
+            <tr><td>id</td><td>VARCHAR</td></tr>
+            <tr><td>title</td><td>VARCHAR</td></tr>
+            <tr><td>year</td><td>INT</td></tr>
+            <tr><td>director</td><td>VARCHAR</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="table-container">
+        <h3 class="text-center">ratings</h3>
+        <table class="table table-bordered">
+            <thead class="table-header">
+            <tr><th>Attribute</th><th>Type</th></tr>
+            </thead>
+            <tbody>
+            <tr><td>movieid</td><td>VARCHAR</td></tr>
+            <tr><td>rating</td><td>FLOAT</td></tr>
+            <tr><td>numVotes</td><td>INT</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="table-container">
+        <h3 class="text-center">sales</h3>
+        <table class="table table-bordered">
+            <thead class="table-header">
+            <tr><th>Attribute</th><th>Type</th></tr>
+            </thead>
+            <tbody>
+            <tr><td>id</td><td>INT</td></tr>
+            <tr><td>customerid</td><td>INT</td></tr>
+            <tr><td>movieid</td><td>VARCHAR</td></tr>
+            <tr><td>saleDate</td><td>DATE</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="table-container">
+        <h3 class="text-center">stars</h3>
+        <table class="table table-bordered">
+            <thead class="table-header">
+            <tr><th>Attribute</th><th>Type</th></tr>
+            </thead>
+            <tbody>
+            <tr><td>id</td><td>VARCHAR</td></tr>
+            <tr><td>name</td><td>VARCHAR</td></tr>
+            <tr><td>birthYear</td><td>INT</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="table-container">
+        <h3 class="text-center">stars_in_movies</h3>
+        <table class="table table-bordered">
+            <thead class="table-header">
+            <tr><th>Attribute</th><th>Type</th></tr>
+            </thead>
+            <tbody>
+            <tr><td>starid</td><td>VARCHAR</td></tr>
+            <tr><td>movieid</td><td>VARCHAR</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="table-container">
+        <h3 class="text-center">sys_config</h3>
+        <table class="table table-bordered">
+            <thead class="table-header">
+            <tr><th>Attribute</th><th>Type</th></tr>
+            </thead>
+            <tbody>
+            <tr><td>variable</td><td>VARCHAR</td></tr>
+            <tr><td>value</td><td>VARCHAR</td></tr>
+            <tr><td>set_time</td><td>VARCHAR</td></tr>
+            <tr><td>set_by</td><td>TIMESTAMP</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Load jQuery and Bootstrap JS -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+</body>
+</html>
