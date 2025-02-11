@@ -35,12 +35,20 @@ function submitLoginForm(formSubmitEvent) {
      * event handler when the event is triggered.
      */
     formSubmitEvent.preventDefault();
+    let recaptchaResponse = grecaptcha.getResponse();
+
+    if (!recaptchaResponse) {
+        $("#login_error_message").text("reCAPTCHA failed.");
+        return;
+    }
+
+    let loginData = login_form.serialize() + "&g-recaptcha-response=" + encodeURIComponent(recaptchaResponse);
 
     $.ajax(
         "api/login", {
             method: "POST",
             // Serialize the login form to the data sent by POST request
-            data: login_form.serialize(),
+            data: loginData,
             success: handleLoginResult
         }
     );
