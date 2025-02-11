@@ -51,6 +51,7 @@ public class LoginFilter implements Filter {
         allowedURIs.add("login.js");
         allowedURIs.add("api/login");
         allowedURIs.add("logo.png");
+        allowedURIs.add("https://www.google.com/recaptcha/api/siteverify");
     }
 
     public void destroy() {
