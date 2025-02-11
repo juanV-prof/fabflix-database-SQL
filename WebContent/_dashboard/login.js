@@ -45,7 +45,7 @@ function submitLoginForm(formSubmitEvent) {
     let loginData = login_form.serialize() + "&g-recaptcha-response=" + encodeURIComponent(recaptchaResponse);
 
     $.ajax(
-        "/cs122b-winter25-aj/api/login", {
+        "../api/login", {
             method: "POST",
             // Serialize the login form to the data sent by POST request
             data: loginData,
