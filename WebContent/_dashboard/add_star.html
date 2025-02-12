@@ -1,0 +1,90 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+    <title>Add s Star</title>
+    <link rel="icon" type="image/png" href="logo.png">
+    <style>
+        .table-container {
+            margin: 20px auto;
+            width: 80%;
+            text-align: center;
+        }
+        .table-header {
+            background: linear-gradient(135deg, #438DD3, #72B9CF);
+            color: white;
+            font-weight: bold;
+        }
+        .table td, .table th {
+            text-align: center;
+        }
+        .center-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+        }
+        .form-container {
+            max-width: 400px;
+            width: 100%;
+        }
+        .custom-btn {
+            background-color: #438DD3;
+            border-color: #438DD3;
+            color: white;
+        }
+        .custom-btn:hover {
+            background-color: #72B9CF;
+        }
+
+
+
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg" style="background: linear-gradient(135deg, #438DD3, #72B9CF);">
+    <a class="navbar-brand text-white" href="../index.html">Home</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item"><a class="nav-link text-white" href="add_movie.html">Add a Movie</a></li>
+            <li class="nav-item"><a class="nav-link text-white" href="add_star.html">Add a Star</a></li>
+        </ul>
+    </div>
+</nav>
+
+
+<div class="container mt-5 center-content">
+    <h1 class="text-center"><strong>Add a Star</strong></h1>
+    <div class="form-container">
+        <h5 class="text-center">New Star Details</h5>
+        <form id ="starForm" method="post" action="#">
+            <div class="form-group">
+                <input type="text" id="starName" class="form-control text-center" placeholder="Star Name" required>
+            </div>
+            <div class="form-group">
+                <input type="text" id="birthYear" class="form-control text-center" placeholder="Birth Year">
+            </div>
+            <button type="submit" class="btn custom-btn btn-block">Submit</button>
+        </form>
+    </div>
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+<script src="add_star.js"></script>
+</body>
+</html>

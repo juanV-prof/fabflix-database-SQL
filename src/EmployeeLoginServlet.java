@@ -16,8 +16,8 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import org.jasypt.util.password.StrongPasswordEncryptor;
 
-@WebServlet(name = "LoginServlet", urlPatterns = "/api/login")
-public class LoginServlet extends HttpServlet {
+@WebServlet(name = "EmployeeLoginServlet", urlPatterns = "/api/employeeLogin")
+public class EmployeeLoginServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
     // Create a dataSource which registered in web.
@@ -62,7 +62,7 @@ public class LoginServlet extends HttpServlet {
 
                 HashMap<String, Integer> cart = new HashMap<>();
                 session.setAttribute("cart", cart);
-                session.setAttribute("role", "customer");
+                session.setAttribute("role", "employee");
 
                 responseJsonObject.addProperty("status", "success");
                 responseJsonObject.addProperty("message", "success");
@@ -79,7 +79,7 @@ public class LoginServlet extends HttpServlet {
 
     private boolean verifyCredentials(String username, String password) {
         try (Connection connection = dataSource.getConnection();
-             PreparedStatement statement = connection.prepareStatement("SELECT password FROM customers WHERE email = ?")) {
+             PreparedStatement statement = connection.prepareStatement("SELECT password FROM employees WHERE email = ?")) {
 
             statement.setString(1, username);
             ResultSet rs = statement.executeQuery();

@@ -2,6 +2,8 @@ import jakarta.servlet.*;
 import jakarta.servlet.annotation.WebFilter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -29,21 +31,32 @@ public class LoginFilter implements Filter {
             return;
         }
 
+        HttpSession session = httpRequest.getSession();
+        String role = (session != null) ? (String) session.getAttribute("role") : null;
+
         // Redirect to login page if the "user" attribute doesn't exist in session
         if (httpRequest.getSession().getAttribute("user") == null) {
-            httpResponse.sendRedirect("login.html");
-        } else {
-            chain.doFilter(request, response);
+            httpResponse.sendRedirect(httpRequest.getContextPath() + "/login.html");
+            return;
         }
+
+        if ("customer".equals(role)
+                && httpRequest.getRequestURI().contains("/_dashboard/")
+                && !httpRequest.getRequestURI().endsWith("/_dashboard/login.html")) {
+            httpResponse.sendRedirect(httpRequest.getContextPath() + "/_dashboard/login.html");
+            return;
+        }
+
+        chain.doFilter(request, response);
     }
 
     private boolean isUrlAllowedWithoutLogin(String requestURI) {
-        /*
-         Setup your own rules here to allow accessing some resources without logging in
-         Always allow your own login related requests(html, js, servlet, etc..)
-         You might also want to allow some CSS files, etc..
-         */
-        return allowedURIs.stream().anyMatch(requestURI.toLowerCase()::endsWith);
+    /*
+     Setup your own rules here to allow accessing some resources without logging in
+     Always allow your own login-related requests (HTML, JS, servlet, etc.).
+     You might also want to allow some CSS files, etc.
+    */
+        return allowedURIs.stream().anyMatch(requestURI::endsWith);
     }
 
     public void init(FilterConfig fConfig) {
@@ -52,6 +65,8 @@ public class LoginFilter implements Filter {
         allowedURIs.add("api/login");
         allowedURIs.add("logo.png");
         allowedURIs.add("https://www.google.com/recaptcha/api/siteverify");
+        allowedURIs.add("_dashboard/login.html");
+        allowedURIs.add("api/employeeLogin");
     }
 
     public void destroy() {
