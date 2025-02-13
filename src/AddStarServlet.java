@@ -73,7 +73,7 @@ public class AddStarServlet extends HttpServlet {
 
                 int rowsAffected = stmt.executeUpdate();
                 if (rowsAffected > 0) {
-                    jsonResponse.addProperty("message", "Star added successfully!");
+                    jsonResponse.addProperty("starId", newId);
                     response.setStatus(200);
                 } else {
                     jsonResponse.addProperty("errorMessage", "Failed to add the star.");

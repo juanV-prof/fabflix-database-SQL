@@ -19,7 +19,11 @@ function handleStarFormSubmit() {
         },
         success: function(response) {
             console.log(response);
-            alert('Star added successfully!');
+            if (response.starId) {
+                alert(`Star added successfully! \nStar ID: ${response.starId}`);
+            } else {
+                alert('Star added successfully.');
+            }
         },
         error: function(xhr, status, error) {
             console.error(error);

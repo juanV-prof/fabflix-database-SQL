@@ -70,7 +70,7 @@
     <h1 class="text-center"><strong>Add a Movie</strong></h1>
     <div class="form-container">
         <h5 class="text-center">New Movie Details</h5>
-        <form>
+        <form id ="movieForm" method="post" action="#">
             <div class="form-group">
                 <input type="text" id="movieName" class="form-control text-center" placeholder="Movie Name" required>
             </div>
@@ -84,7 +84,7 @@
                 <input type="text" id="starName" class="form-control text-center" placeholder="Star Name" required>
             </div>
             <div class="form-group">
-                <input type="text" id="birthYear" class="form-control text-center" placeholder="Birth Year" required>
+                <input type="text" id="birthYear" class="form-control text-center" placeholder="Birth Year">
             </div>
             <div class="form-group">
                 <input type="text" id="genreName" class="form-control text-center" placeholder="Genre Name" required>
@@ -97,6 +97,6 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
-<script src="add_movie.js.js"></script>
+<script src="add_movie.js"></script>
 </body>
 </html>
