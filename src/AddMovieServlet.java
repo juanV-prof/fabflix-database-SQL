@@ -10,10 +10,7 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.Random;
 
 @WebServlet(name = "AddMovieServlet", urlPatterns = "/api/add_movie")
@@ -50,166 +47,45 @@ public class AddMovieServlet extends HttpServlet {
             response.setStatus(400);
         } else {
             try (Connection conn = dataSource.getConnection()) {
+                String std_pcd = "CALL add_movie(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                CallableStatement stmt = conn.prepareCall(std_pcd);
 
-                String movieCheckQuery = "SELECT * FROM movies WHERE title = ? AND year = ? AND director = ?";
-                PreparedStatement movieCheckStmt = conn.prepareStatement(movieCheckQuery);
-                movieCheckStmt.setString(1, title);
-                movieCheckStmt.setString(2, year);
-                movieCheckStmt.setString(3, director);
-
-                ResultSet movieRs = movieCheckStmt.executeQuery();
-                if (movieRs.next()) {
-                    jsonResponse.addProperty("errorMessage", "Movie already exists.");
-                    response.setStatus(400);
-                    movieCheckStmt.close();
-                    movieRs.close();
-                    out.write(jsonResponse.toString());
-                    return;
-                }
-
-                String maxMovieIdQuery = "SELECT MAX(id) FROM movies";
-                Statement maxIdStmt = conn.createStatement();
-                ResultSet rs = maxIdStmt.executeQuery(maxMovieIdQuery);
-
-                String newMovieId = "";
-
-                if (rs.next()) {
-                    String maxId = rs.getString(1);
-                    if (maxId != null && maxId.matches("tt\\d+")) {
-                        int numPart = Integer.parseInt(maxId.substring(2));
-                        newMovieId = String.format("tt%07d", numPart + 1);
-                    }
-                }
-                rs.close();
-                maxIdStmt.close();
-
-                String movieInsertQuery = "INSERT INTO movies (id, title, year, director, price) VALUES (?, ?, ?, ?, ?)";
-                PreparedStatement movieInsertStmt = conn.prepareStatement(movieInsertQuery);
-                movieInsertStmt.setString(1, newMovieId);
-                movieInsertStmt.setString(2, title);
-                movieInsertStmt.setInt(3, Integer.parseInt(year));
-                movieInsertStmt.setString(4, director);
-                Random rand = new Random();
-                movieInsertStmt.setInt(5, rand.nextInt(91) + 10);
-                movieInsertStmt.executeUpdate();
-                movieInsertStmt.close();
-
-                float rating = (rand.nextInt(101) / 10.0f);
-                int numVotes = rand.nextInt(300000) + 1;
-
-                String ratingInsertQuery = "INSERT INTO ratings (movieId, rating, numVotes) VALUES (?, ?, ?)";
-                PreparedStatement ratingInsertStmt = conn.prepareStatement(ratingInsertQuery);
-                ratingInsertStmt.setString(1, newMovieId);
-                ratingInsertStmt.setFloat(2, rating);
-                ratingInsertStmt.setInt(3, numVotes);
-                ratingInsertStmt.executeUpdate();
-                ratingInsertStmt.close();
-
-                String starCheckQuery = "SELECT id FROM stars WHERE name = ? AND birthYear = ?";
-                PreparedStatement starCheckStmt = conn.prepareStatement(starCheckQuery);
-                starCheckStmt.setString(1, starName);
+                stmt.setString(1, title);
+                stmt.setInt(2, Integer.parseInt(year));
+                stmt.setString(3, director);
+                stmt.setString(4, starName);
 
                 if (birthYear != null && !birthYear.isEmpty()) {
-                    starCheckStmt.setInt(2, Integer.parseInt(birthYear));
+                    stmt.setInt(5, Integer.parseInt(birthYear));
                 } else {
-                    starCheckStmt.setNull(2, java.sql.Types.INTEGER);
+                    stmt.setNull(5, java.sql.Types.INTEGER);
                 }
 
-                ResultSet starResult = starCheckStmt.executeQuery();
+                stmt.setString(6, genreName);
 
+                stmt.registerOutParameter(7, Types.VARCHAR);
+                stmt.registerOutParameter(8, Types.VARCHAR);
+                stmt.registerOutParameter(9, Types.INTEGER);
+                stmt.registerOutParameter(10, Types.BOOLEAN);
 
-                String starId = null;
+                stmt.execute();
 
-                if (starResult.next()) {
-                    starId = starResult.getString("id");
+                String movieID = stmt.getString(7);
+                String starID = stmt.getString(8);
+                int genreID = stmt.getInt(9);
+                boolean success = stmt.getBoolean(10);
+
+                if (success) {
+                    jsonResponse.addProperty("movieId", movieID);
+                    jsonResponse.addProperty("starId", starID);
+                    jsonResponse.addProperty("genreId", genreID);
+                    response.setStatus(200);
                 } else {
-                    String maxStarIdQuery = "SELECT MAX(id) FROM stars";
-                    maxIdStmt = conn.createStatement();
-                    rs = maxIdStmt.executeQuery(maxStarIdQuery);
-
-                    String newStarId = "";
-
-                    if (rs.next()) {
-                        String maxId = rs.getString(1);
-                        if (maxId != null && maxId.matches("nm\\d+")) {
-                            int numPart = Integer.parseInt(maxId.substring(2));
-                            newStarId = String.format("nm%07d", numPart + 1);
-                        }
-                    }
-                    rs.close();
-                    maxIdStmt.close();
-
-                    String insertStarQuery = "INSERT INTO stars (id, name, birthYear) VALUES (?, ?, ?)";
-                    PreparedStatement starInsertStmt = conn.prepareStatement(insertStarQuery);
-                    starInsertStmt.setString(1, newStarId);
-                    starInsertStmt.setString(2, starName);
-
-
-                    if (birthYear != null && !birthYear.isEmpty()) {
-                        starInsertStmt.setInt(3, Integer.parseInt(birthYear));
-                    } else {
-                        starInsertStmt.setNull(3, java.sql.Types.INTEGER);
-                    }
-                    starInsertStmt.executeUpdate();
-                    starId = newStarId;
+                    jsonResponse.addProperty("errorMessage", "Failed to add the movie. It may already exist.");
+                    response.setStatus(400);
                 }
 
-                String genreCheckQuery = "SELECT id FROM genres WHERE name = ?";
-                PreparedStatement genreCheckStmt = conn.prepareStatement(genreCheckQuery);
-                genreCheckStmt.setString(1, genreName);
-
-                ResultSet genreResult = genreCheckStmt.executeQuery();
-
-                int genreId = -1;
-
-                if (genreResult.next()) {
-                    genreId = genreResult.getInt("id");
-                } else {
-                    String maxGenreIdQuery = "SELECT MAX(id) FROM genres";
-                    maxIdStmt = conn.createStatement();
-                    rs = maxIdStmt.executeQuery(maxGenreIdQuery);
-
-                    int newGenreId = 1;
-
-                    if (rs.next()) {
-                        String maxId = rs.getString(1);
-                        if (maxId != null && maxId.matches("\\d+")) {
-                            newGenreId = Integer.parseInt(maxId) + 1;
-                        }
-                    }
-                    rs.close();
-                    maxIdStmt.close();
-
-                    String insertGenreQuery = "INSERT INTO genres (id, name) VALUES (?, ?)";
-                    PreparedStatement genreInsertStmt = conn.prepareStatement(insertGenreQuery);
-                    genreInsertStmt.setInt(1, newGenreId);
-                    genreInsertStmt.setString(2, genreName);
-
-                    genreInsertStmt.executeUpdate();
-                    genreId = newGenreId;
-                }
-
-                String linkStarToMovieQuery = "INSERT INTO stars_in_movies (starId, movieId) VALUES (?, ?)";
-                PreparedStatement linkStarStmt = conn.prepareStatement(linkStarToMovieQuery);
-                linkStarStmt.setString(1, starId);
-                linkStarStmt.setString(2, newMovieId);
-                linkStarStmt.executeUpdate();
-                linkStarStmt.close();
-
-
-                String linkGenreToMovieQuery = "INSERT INTO genres_in_movies (genreId, movieId) VALUES (?, ?)";
-                PreparedStatement linkGenreStmt = conn.prepareStatement(linkGenreToMovieQuery);
-                linkGenreStmt.setInt(1, genreId);
-                linkGenreStmt.setString(2, newMovieId);
-                linkGenreStmt.executeUpdate();
-                linkGenreStmt.close();
-
-
-                jsonResponse.addProperty("movieId", newMovieId);
-                jsonResponse.addProperty("starId", starId);
-                jsonResponse.addProperty("genreId", genreId);
-
-
+                stmt.close();
             } catch (Exception e) {
                 e.printStackTrace();
                 jsonResponse.addProperty("errorMessage", "Error: " + e.getMessage());
