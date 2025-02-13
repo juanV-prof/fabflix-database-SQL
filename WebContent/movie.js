@@ -19,7 +19,7 @@ function handleMovieResult(resultData) {
     rowHTML += "<th>" + movieData["director"] + "</th>";
     rowHTML += "<th>" + movieData["genres"] + "</th>";
 
-    let stars = movieData["stars"].split(', ');
+    let stars = resultData["stars"] ? resultData["stars"].split(', ') : [];
     let starLinks = stars.map(star => {
         let [name, id] = star.split(':');
         return "<a href='star.html?id=" + encodeURIComponent(id) + "'>" + name + "</a>";

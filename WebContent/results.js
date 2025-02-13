@@ -87,6 +87,8 @@ function handleMovieListResults(resultData) {
 
     movieTableBodyElement.empty();
 
+    console.log(resultData.length)
+
 
     // Iterate through resultData, no more than n entries
     for (let i = 0; i < resultData.length; i++) {
@@ -106,7 +108,7 @@ function handleMovieListResults(resultData) {
         );
         rowHTML += "<th>" + genreLinks.join(', ') + "</th>";
 
-        let stars = resultData[i]["stars"].split(', ');
+        let stars = resultData[i]["stars"] ? resultData[i]["stars"].split(', ') : [];
         let starLinks = stars.map(star => {
             let [name, id] = star.split(':');
             return "<a href='star.html?id=" + encodeURIComponent(id) + "'>" + name + "</a>";

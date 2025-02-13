@@ -6,6 +6,7 @@
 .DS_Store
 create_table.sql
 movie-data.sql
+output.txt
 
 .metadata
 bin/
