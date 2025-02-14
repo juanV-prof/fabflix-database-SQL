@@ -17,9 +17,17 @@ function handleMovieResult(resultData) {
 
     let rowHTML = "<tr>";
     rowHTML += "<th>" + movieData["director"] + "</th>";
-    rowHTML += "<th>" + movieData["genres"] + "</th>";
 
-    let stars = resultData["stars"] ? resultData["stars"].split(', ') : [];
+    let genres = movieData["genres"].split(', ');
+    let genreLinks = genres.map(genre =>
+        "<a href='results.html?genre=" + encodeURIComponent(genre.trim()) +
+        "&moviesPerPage=25&sortBy=titleAscRatingAsc&pageNumber=1'>" + genre + "</a>"
+    );
+    rowHTML += "<th>" + genreLinks.join(', ') + "</th>";
+
+    console.log(movieData["stars"])
+    let stars = movieData["stars"] ? movieData["stars"].split(', ') : [];
+    console.log(stars)
     let starLinks = stars.map(star => {
         let [name, id] = star.split(':');
         return "<a href='star.html?id=" + encodeURIComponent(id) + "'>" + name + "</a>";

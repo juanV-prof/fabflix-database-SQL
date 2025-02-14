@@ -11,7 +11,6 @@ import javax.naming.NamingException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.*;
-import java.util.Random;
 
 @WebServlet(name = "AddMovieServlet", urlPatterns = "/api/add_movie")
 public class AddMovieServlet extends HttpServlet {

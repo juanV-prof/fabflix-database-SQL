@@ -7,6 +7,7 @@
 create_table.sql
 movie-data.sql
 output.txt
+report.txt
 
 .metadata
 bin/
