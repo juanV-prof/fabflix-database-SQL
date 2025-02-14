@@ -188,7 +188,7 @@ public class CastsParser extends DefaultHandler {
     }
 
     public static void main(String[] args) {
-        String xmlFile = "/Users/aleon/UCI/CS_122B/XML/casts124.xml";
+        String xmlFile = args[0];
         boolean testing = false;
 
         CastsParser parser = new CastsParser(testing);
