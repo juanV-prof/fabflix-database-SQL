@@ -278,7 +278,7 @@ public class MainsParser extends DefaultHandler {
 
 
     public static void main(String[] args) {
-        String xmlFile = args[0];
+        String xmlFile = "/Users/aleon/UCI/CS_122B/XML/mains243.xml";
         boolean testing = false;
 
         MainsParser parser = new MainsParser(testing);

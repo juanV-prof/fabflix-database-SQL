@@ -7,6 +7,9 @@ import javax.xml.parsers.SAXParserFactory;
 import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 public class CastsParser extends DefaultHandler {
     private Connection conn;
@@ -16,6 +19,11 @@ public class CastsParser extends DefaultHandler {
     private String actorName;
     private String movieTitle;
     private boolean testing = false;
+    private HashMap<String, String> movieCache = new HashMap<>();
+    private HashMap<String, String> starCache = new HashMap<>();
+    private List<String[]> batchEntries = new ArrayList<>();
+
+    // Added hashmaps and array to optimize parsing and lower the time it takes
 
     public CastsParser(boolean testing) {
         this.testing = testing;
@@ -81,10 +89,10 @@ public class CastsParser extends DefaultHandler {
 
                 if (movieId != null && starId != null) {
                     if (!entryExists(starId, movieId)) {
-                        if (testing) {
-                            outputWriter.println("Testing - Star: " + actorName + " -> Movie: " + movieTitle);
-                        } else {
-                            insertEntry(starId, movieId);
+                        batchEntries.add(new String[]{starId, movieId}); // Instead of adding each time, add to batch
+
+                        if (batchEntries.size() >= 500) { // When batch reaches 500, execute them
+                            insertEntriesBatch();
                         }
                     } else {
                         reportWriter.println("Duplicate entry found: " + actorName + " -> " + movieTitle);
@@ -112,12 +120,18 @@ public class CastsParser extends DefaultHandler {
     }
 
     private String getMovieIdByTitle(String title) throws SQLException {
+        if (movieCache.containsKey(title)) { // Keep the movieId cached to reduce calls to sql
+            return movieCache.get(title);
+        }
+
         String query = "SELECT id FROM movies WHERE title = ?";
         try (PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, title);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
-                    return rs.getString("id");
+                    String movieId = rs.getString("id");
+                    movieCache.put(title, movieId); // Add movieId to cache
+                    return movieId;
                 }
             }
         }
@@ -125,33 +139,42 @@ public class CastsParser extends DefaultHandler {
     }
 
     private String getStarIdByName(String name) throws SQLException {
+        if (starCache.containsKey(name)) { // Keep the starId cached to reduce calls to sql
+            return starCache.get(name);
+        }
+
         String query = "SELECT id FROM stars WHERE name = ?";
         try (PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, name);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
-                    return rs.getString("id");
+                    String starId = rs.getString("id");
+                    starCache.put(name, starId); // Add starId to cache
+                    return starId;
                 }
             }
         }
         return null;
     }
 
-    private boolean insertEntry(String starId, String movieId) throws SQLException {
+    private void insertEntriesBatch() throws SQLException {
+        if (batchEntries.isEmpty()) return;
+
         String insertQuery = "INSERT INTO stars_in_movies (starId, movieId) VALUES (?, ?)";
         try (PreparedStatement insertStmt = conn.prepareStatement(insertQuery)) {
-            insertStmt.setString(1, starId);
-            insertStmt.setString(2, movieId);
-            insertStmt.executeUpdate();
-            return true;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
+            for (String[] entry : batchEntries) {
+                insertStmt.setString(1, entry[0]);
+                insertStmt.setString(2, entry[1]);
+                insertStmt.addBatch();
+            }
+            insertStmt.executeBatch();
+            batchEntries.clear();
         }
     }
 
     public void closeConnection() {
         try {
+            insertEntriesBatch();
             if (conn != null) conn.close();
             if (reportWriter != null) reportWriter.close();
             if (testing && outputWriter != null) outputWriter.close();
@@ -165,7 +188,7 @@ public class CastsParser extends DefaultHandler {
     }
 
     public static void main(String[] args) {
-        String xmlFile = args[0];
+        String xmlFile = "/Users/aleon/UCI/CS_122B/XML/casts124.xml";
         boolean testing = false;
 
         CastsParser parser = new CastsParser(testing);
