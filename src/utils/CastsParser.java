@@ -9,6 +9,7 @@ import java.io.PrintWriter;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 
 public class CastsParser extends DefaultHandler {
@@ -21,7 +22,9 @@ public class CastsParser extends DefaultHandler {
     private boolean testing = false;
     private HashMap<String, String> movieCache = new HashMap<>();
     private HashMap<String, String> starCache = new HashMap<>();
-    private List<String[]> batchEntries = new ArrayList<>();
+    private HashSet<String> existingMaps = new HashSet<>();
+    private List<String[]> batchInsert = new ArrayList<>();
+    private static final int BATCH_SIZE = 5000;
 
     // Added hashmaps and array to optimize parsing and lower the time it takes
 
@@ -40,6 +43,9 @@ public class CastsParser extends DefaultHandler {
                 outputWriter = new PrintWriter(new FileWriter("output.txt", false));
             }
 
+            preloadData();
+            preloadExistingMaps();
+
         } catch (Exception e) {
             System.out.println("Database connection issue!");
             e.printStackTrace();
@@ -49,6 +55,7 @@ public class CastsParser extends DefaultHandler {
     public void parseDocument(String xmlFile) {
         try {
             SAXParserFactory factory = SAXParserFactory.newInstance();
+            factory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
             SAXParser saxParser = factory.newSAXParser();
             saxParser.parse(xmlFile, this);
         } catch (Exception e) {
@@ -84,14 +91,16 @@ public class CastsParser extends DefaultHandler {
                     return;
                 }
 
-                String movieId = getMovieIdByTitle(movieTitle);
-                String starId = getStarIdByName(actorName);
+                String movieId = movieCache.get(movieTitle);
+                String starId = starCache.get(actorName);
 
                 if (movieId != null && starId != null) {
-                    if (!entryExists(starId, movieId)) {
-                        batchEntries.add(new String[]{starId, movieId}); // Instead of adding each time, add to batch
+                    String map = starId + "-" + movieId;
+                    if (!existingMaps.contains(map)) {
+                        batchInsert.add(new String[]{starId, movieId}); // Instead of adding each time, add to batch
+                        existingMaps.add(map);
 
-                        if (batchEntries.size() >= 500) { // When batch reaches 500, execute them
+                        if (batchInsert.size() >= BATCH_SIZE) { // When batch reaches BATCH_SIZE, execute them
                             insertEntriesBatch();
                         }
                     } else {
@@ -108,67 +117,47 @@ public class CastsParser extends DefaultHandler {
         }
     }
 
-    private boolean entryExists(String starId, String movieId) throws SQLException {
-        String query = "SELECT 1 FROM stars_in_movies WHERE starId = ? AND movieId = ? LIMIT 1";
-        try (PreparedStatement stmt = conn.prepareStatement(query)) {
-            stmt.setString(1, starId);
-            stmt.setString(2, movieId);
-            try (ResultSet rs = stmt.executeQuery()) {
-                return rs.next();
+    private void preloadData() throws SQLException {
+        String movieQuery = "SELECT id, title FROM movies";
+        try (Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(movieQuery)) {
+            while (rs.next()) {
+                movieCache.put(rs.getString("title"), rs.getString("id"));
+            }
+        }
+
+        String starQuery = "SELECT id, name FROM stars";
+        try (Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(starQuery)) {
+            while (rs.next()) {
+                starCache.put(rs.getString("name"), rs.getString("id"));
             }
         }
     }
 
-    private String getMovieIdByTitle(String title) throws SQLException {
-        if (movieCache.containsKey(title)) { // Keep the movieId cached to reduce calls to sql
-            return movieCache.get(title);
-        }
-
-        String query = "SELECT id FROM movies WHERE title = ?";
-        try (PreparedStatement stmt = conn.prepareStatement(query)) {
-            stmt.setString(1, title);
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    String movieId = rs.getString("id");
-                    movieCache.put(title, movieId); // Add movieId to cache
-                    return movieId;
-                }
+    private void preloadExistingMaps() throws SQLException {
+        System.out.println("Preloading existing stars_in_movies data...");
+        String query = "SELECT starId, movieId FROM stars_in_movies";
+        try (Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(query)) {
+            while (rs.next()) {
+                existingMaps.add(rs.getString("starId") + "|" + rs.getString("movieId"));
             }
         }
-        return null;
-    }
-
-    private String getStarIdByName(String name) throws SQLException {
-        if (starCache.containsKey(name)) { // Keep the starId cached to reduce calls to sql
-            return starCache.get(name);
-        }
-
-        String query = "SELECT id FROM stars WHERE name = ?";
-        try (PreparedStatement stmt = conn.prepareStatement(query)) {
-            stmt.setString(1, name);
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    String starId = rs.getString("id");
-                    starCache.put(name, starId); // Add starId to cache
-                    return starId;
-                }
-            }
-        }
-        return null;
     }
 
     private void insertEntriesBatch() throws SQLException {
-        if (batchEntries.isEmpty()) return;
+        if (batchInsert.isEmpty()) return;
 
         String insertQuery = "INSERT INTO stars_in_movies (starId, movieId) VALUES (?, ?)";
         try (PreparedStatement insertStmt = conn.prepareStatement(insertQuery)) {
-            for (String[] entry : batchEntries) {
+            for (String[] entry : batchInsert) {
                 insertStmt.setString(1, entry[0]);
                 insertStmt.setString(2, entry[1]);
                 insertStmt.addBatch();
             }
             insertStmt.executeBatch();
-            batchEntries.clear();
+            batchInsert.clear();
         }
     }
 
@@ -188,7 +177,7 @@ public class CastsParser extends DefaultHandler {
     }
 
     public static void main(String[] args) {
-        String xmlFile = args[0];
+        String xmlFile = "/Users/aleon/UCI/CS_122B/XML/casts124.xml";
         boolean testing = false;
 
         CastsParser parser = new CastsParser(testing);
