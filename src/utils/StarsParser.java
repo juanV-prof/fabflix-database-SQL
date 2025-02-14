@@ -161,7 +161,7 @@ public class StarsParser extends DefaultHandler {
     }
 
     public static void main(String[] args) {
-        String xmlFile = "/Users/aleon/UCI/CS_122B/XML/actors63.xml";
+        String xmlFile = args[0];
         boolean testing = false;
 
         StarsParser parser = new StarsParser(testing);
