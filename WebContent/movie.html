@@ -52,10 +52,7 @@
         </ul>
         <!-- Search form -->
         <form class="form-inline my-2 my-lg-0">
-            <input class="form-control mr-sm-2" type="text" placeholder="Title" aria-label="Title" id="searchTitle">
-            <input class="form-control mr-sm-2" type="text" placeholder="Year" aria-label="Year" id="searchYear">
-            <input class="form-control mr-sm-2" type="text" placeholder="Director" aria-label="Director" id="searchDirector">
-            <input class="form-control mr-sm-2" type="text" placeholder="Star's Name" aria-label="StarsName" id="searchStarsName">
+            <input class="form-control mr-sm-2" type="text" placeholder="Fulltext" aria-label="Title" id="searchTitle" style="width: 500px;">
             <button class="btn btn-outline-light my-2 my-sm-0" type="button" id="searchButton">Search</button>
         </form>
     </div>
@@ -94,15 +91,9 @@
     $(document).ready(function() {
         $("#searchButton").click(function() {
             let title = $("#searchTitle").val();
-            let year = $("#searchYear").val();
-            let director = $("#searchDirector").val();
-            let starsName = $("#searchStarsName").val();
 
             let queryParams = new URLSearchParams();
             if (title) queryParams.append("title", title);
-            if (year) queryParams.append("year", year);
-            if (director) queryParams.append("director", director);
-            if (starsName) queryParams.append("star", starsName);
             queryParams.append("moviesPerPage", "25");
             queryParams.append("sortBy", "titleAscRatingAsc");
             queryParams.append("pageNumber", "1");

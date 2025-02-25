@@ -101,12 +101,16 @@ function handleMovieListResults(resultData) {
         rowHTML += "<th>" + resultData[i]["year"] + "</th>";
         rowHTML += "<th>" + resultData[i]["director"] + "</th>";
 
-        let genres = resultData[i]["genres"].split(', ');
-        let genreLinks = genres.map(genre =>
-            "<a href='results.html?genre=" + encodeURIComponent(genre.trim()) +
-            "&moviesPerPage=25&sortBy=titleAscRatingAsc&pageNumber=1'>" + genre + "</a>"
-        );
-        rowHTML += "<th>" + genreLinks.join(', ') + "</th>";
+        if (resultData[i]["genres"] == null) {
+            rowHTML += "<th>" + "N/A" + "</th>";
+        } else {
+            let genres = resultData[i]["genres"].split(', ');
+            let genreLinks = genres.map(genre =>
+                "<a href='results.html?genre=" + encodeURIComponent(genre.trim()) +
+                "&moviesPerPage=25&sortBy=titleAscRatingAsc&pageNumber=1'>" + genre + "</a>"
+            );
+            rowHTML += "<th>" + genreLinks.join(', ') + "</th>";
+        }
 
         let stars = resultData[i]["stars"] ? resultData[i]["stars"].split(', ') : [];
         let starLinks = stars.map(star => {

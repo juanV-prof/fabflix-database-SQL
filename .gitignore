@@ -7,6 +7,7 @@
 create_table.sql
 movie-data.sql
 output.txt
+backup_code.txt
 
 .metadata
 bin/
