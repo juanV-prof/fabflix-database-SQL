@@ -14,6 +14,27 @@
 
     <link rel="icon" type="image/png" href="logo.png">
 
+    <style>
+        .autocomplete-suggestions {
+            border: 1px solid #ddd;
+            background: white;
+            overflow: auto;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            max-height: 250px;
+            z-index: 9999 !important;
+        }
+
+        .autocomplete-suggestion {
+            padding: 8px;
+            cursor: pointer;
+        }
+
+        .autocomplete-selected {
+            background-color: #438DD3;
+            color: white;
+        }
+    </style>
+
 </head>
 <body>
 <!-- Top Bar -->
@@ -73,14 +94,60 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.devbridge-autocomplete/1.4.11/jquery.autocomplete.min.js"></script>
 
 <!-- Load our own JS file -->
 <script src="confirmation.js"></script>
 
 <script>
     $(document).ready(function() {
+        let cachedSearches = JSON.parse(sessionStorage.getItem('cachedSearches')) || {};
+
+        function transformResult(response) {
+            return {
+                suggestions: $.map(response, function(item) {
+                    return { value: item.title, data: item.id };
+                })
+            };
+        }
+
+        $('#searchTitle').autocomplete({
+            serviceUrl: 'api/autocomplete',
+            type: 'GET',
+            dataType: 'json',
+            minChars: 3,
+            deferRequestBy: 300,
+            onSelect: function(suggestion) {
+                window.location.href = "movie.html?id=" + encodeURIComponent(suggestion.data);
+            },
+            lookup: function(search, done) {
+                console.log("Begin autocomplete search");
+                if (cachedSearches.hasOwnProperty(search)) {
+                    console.log("Gets from cache");
+                    console.log(cachedSearches[search]);
+                    done({ suggestions: cachedSearches[search] });
+                } else {
+                    $.ajax({
+                        url: 'api/autocomplete',
+                        type: 'GET',
+                        dataType: 'json',
+                        data: { query: search },
+                        success: function(response) {
+                            let transformed = transformResult(response).suggestions;
+                            cachedSearches[search] = transformed;
+                            console.log("Gets from backend");
+                            console.log(cachedSearches[search]);
+                            sessionStorage.setItem("cachedSearches", JSON.stringify(cachedSearches));
+                            done({ suggestions: transformed });
+                        }
+                    });
+                }
+            },
+        });
+
+        // When user clicks search button
         $("#searchButton").click(function() {
-            let title = $("#searchTitle").val();
+            let title = $("#searchTitle").val().trim();
 
             let queryParams = new URLSearchParams();
             if (title) queryParams.append("title", title);
@@ -89,6 +156,14 @@
             queryParams.append("pageNumber", "1");
 
             window.location.href = "results.html?" + queryParams.toString();
+        });
+
+        // When enter is clicked
+        $("#searchTitle").keypress(function(event) {
+            if (event.which === 13) {
+                event.preventDefault();
+                $("#searchButton").click();
+            }
         });
     });
 </script>

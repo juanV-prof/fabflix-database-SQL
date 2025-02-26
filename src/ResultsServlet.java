@@ -309,7 +309,6 @@ public class ResultsServlet extends HttpServlet {
                         "GROUP BY \n" +
                         "    tm.id, tm.title, tm.year, tm.director, tm.rating\n" +
                         filter + ";";
-//                System.out.println()
                 statement = conn.prepareStatement(query);
                 statement.setString(1, title);
                 statement.setInt(2, moviesPerPageInt);
