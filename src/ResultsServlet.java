@@ -273,42 +273,82 @@ public class ResultsServlet extends HttpServlet {
                 }
 
             } else {
-                query = "WITH TopMovies AS (\n" +
-                        "    SELECT \n" +
-                        "        m.id, m.title COLLATE utf8mb4_bin AS title, m.year, m.director, r.rating\n" +
-                        "    FROM \n" +
-                        "        movies m\n" +
-                        "    JOIN \n" +
-                        "        ratings r ON m.id = r.movieId\n" +
-                        "    WHERE \n" +
-                        "        MATCH(m.title) AGAINST (? IN BOOLEAN MODE)\n" +
-                        "    " + filter + "\n" +
-                        "    LIMIT ? OFFSET ?\n" +
-                        ")\n" +
-                        "SELECT \n" +
-                        "    tm.id,\n" +
-                        "    tm.title,\n" +
-                        "    tm.year,\n" +
-                        "    tm.director,\n" +
-                        "    tm.rating,\n" +
-                        "    REPLACE(GROUP_CONCAT(DISTINCT g.name SEPARATOR ', '), ',', ', ') AS genres,\n" +
-                        "    SUBSTRING_INDEX(\n" +
-                        "        GROUP_CONCAT(DISTINCT CONCAT(s.name, ':', s.id) ORDER BY s.name ASC SEPARATOR ', '),\n" +
-                        "        ', ', 3\n" +
-                        "    ) AS stars\n" +
-                        "FROM \n" +
-                        "    TopMovies tm\n" +
-                        "LEFT JOIN \n" +
-                        "    genres_in_movies gm ON tm.id = gm.movieId\n" +
-                        "LEFT JOIN \n" +
-                        "    genres g ON gm.genreId = g.id\n" +
-                        "LEFT JOIN \n" +
-                        "    stars_in_movies sm ON tm.id = sm.movieId\n" +
-                        "LEFT JOIN \n" +
-                        "    stars s ON sm.starId = s.id\n" +
-                        "GROUP BY \n" +
-                        "    tm.id, tm.title, tm.year, tm.director, tm.rating\n" +
-                        filter + ";";
+                if (title.length() >= 4) {
+                    query = "WITH TopMovies AS (\n" +
+                            "    SELECT \n" +
+                            "        m.id, m.title COLLATE utf8mb4_bin AS title, m.year, m.director, r.rating\n" +
+                            "    FROM \n" +
+                            "        movies m\n" +
+                            "    JOIN \n" +
+                            "        ratings r ON m.id = r.movieId\n" +
+                            "    WHERE \n" +
+                            "        MATCH(m.title) AGAINST (? IN BOOLEAN MODE)\n" +
+                            "    " + filter + "\n" +
+                            "    LIMIT ? OFFSET ?\n" +
+                            ")\n" +
+                            "SELECT \n" +
+                            "    tm.id,\n" +
+                            "    tm.title,\n" +
+                            "    tm.year,\n" +
+                            "    tm.director,\n" +
+                            "    tm.rating,\n" +
+                            "    REPLACE(GROUP_CONCAT(DISTINCT g.name SEPARATOR ', '), ',', ', ') AS genres,\n" +
+                            "    SUBSTRING_INDEX(\n" +
+                            "        GROUP_CONCAT(DISTINCT CONCAT(s.name, ':', s.id) ORDER BY s.name ASC SEPARATOR ', '),\n" +
+                            "        ', ', 3\n" +
+                            "    ) AS stars\n" +
+                            "FROM \n" +
+                            "    TopMovies tm\n" +
+                            "LEFT JOIN \n" +
+                            "    genres_in_movies gm ON tm.id = gm.movieId\n" +
+                            "LEFT JOIN \n" +
+                            "    genres g ON gm.genreId = g.id\n" +
+                            "LEFT JOIN \n" +
+                            "    stars_in_movies sm ON tm.id = sm.movieId\n" +
+                            "LEFT JOIN \n" +
+                            "    stars s ON sm.starId = s.id\n" +
+                            "GROUP BY \n" +
+                            "    tm.id, tm.title, tm.year, tm.director, tm.rating\n" +
+                            filter + ";";
+                } else {
+                    query = "WITH TopMovies AS (\n" +
+                            "    SELECT \n" +
+                            "        m.id, m.title COLLATE utf8mb4_bin AS title, m.year, m.director, r.rating\n" +
+                            "    FROM \n" +
+                            "        movies m\n" +
+                            "    JOIN \n" +
+                            "        ratings r ON m.id = r.movieId\n" +
+                            "    WHERE \n" +
+                            "        m.title LIKE CONCAT('%', ?, '%')\n" +
+                            "    " + filter + "\n" +
+                            "    LIMIT ? OFFSET ?\n" +
+                            ")\n" +
+                            "SELECT \n" +
+                            "    tm.id,\n" +
+                            "    tm.title,\n" +
+                            "    tm.year,\n" +
+                            "    tm.director,\n" +
+                            "    tm.rating,\n" +
+                            "    REPLACE(GROUP_CONCAT(DISTINCT g.name SEPARATOR ', '), ',', ', ') AS genres,\n" +
+                            "    SUBSTRING_INDEX(\n" +
+                            "        GROUP_CONCAT(DISTINCT CONCAT(s.name, ':', s.id) ORDER BY s.name ASC SEPARATOR ', '),\n" +
+                            "        ', ', 3\n" +
+                            "    ) AS stars\n" +
+                            "FROM \n" +
+                            "    TopMovies tm\n" +
+                            "LEFT JOIN \n" +
+                            "    genres_in_movies gm ON tm.id = gm.movieId\n" +
+                            "LEFT JOIN \n" +
+                            "    genres g ON gm.genreId = g.id\n" +
+                            "LEFT JOIN \n" +
+                            "    stars_in_movies sm ON tm.id = sm.movieId\n" +
+                            "LEFT JOIN \n" +
+                            "    stars s ON sm.starId = s.id\n" +
+                            "GROUP BY \n" +
+                            "    tm.id, tm.title, tm.year, tm.director, tm.rating\n" +
+                            filter + ";";
+                }
+
                 statement = conn.prepareStatement(query);
                 statement.setString(1, title);
                 statement.setInt(2, moviesPerPageInt);
