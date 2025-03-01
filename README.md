@@ -3,7 +3,7 @@
 
     - #### Names: Alfredo Leon and Juan Varela
 
-    - #### Project 4 Video Demo Link:
+    - #### Project 4 Video Demo Link: https://www.youtube.com/watch?v=c9oaZPOmVws
 
     - #### Instruction of deployment:
       - Deployed project on AWS with JDBC Connection Pooling
