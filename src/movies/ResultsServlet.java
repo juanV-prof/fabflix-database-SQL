@@ -1,6 +1,9 @@
+package movies;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-
+import common.JwtUtil;
+import io.jsonwebtoken.Claims;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import jakarta.servlet.ServletConfig;
@@ -8,7 +11,6 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
 import javax.sql.DataSource;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -59,7 +61,14 @@ public class ResultsServlet extends HttpServlet {
         // Output stream to STDOUT
         PrintWriter out = response.getWriter();
 
-        HttpSession session = request.getSession();
+        Claims claims = (Claims) request.getAttribute("claims");
+
+        Map<String, Object> searchParams;
+        if (claims != null && claims.get("searchParams") != null) {
+            searchParams = (Map<String, Object>) claims.get("searchParams");
+        } else {
+            searchParams = new HashMap<>();
+        }
 
         String genre = request.getParameter("genre");
         String prefix = request.getParameter("prefix");
@@ -73,50 +82,50 @@ public class ResultsServlet extends HttpServlet {
 
         if (pageNumber != null && moviesPerPage != null && sortBy != null && genre == null && prefix == null && title == null && year == null && star == null) {
             // Only pageNumber, moviesPerPage, and sortBy are provided
-            session.setAttribute("pageNumber", pageNumber);
-            session.setAttribute("moviesPerPage", moviesPerPage);
-            session.setAttribute("sortBy", sortBy);
+            searchParams.put("pageNumber", pageNumber);
+            searchParams.put("moviesPerPage", moviesPerPage);
+            searchParams.put("sortBy", sortBy);
 
-            genre = (String) session.getAttribute("genre");
-            prefix = (String) session.getAttribute("prefix");
-            title = (String) session.getAttribute("title");
-            director = (String) session.getAttribute("director");
-            year = (String) session.getAttribute("year");
-            star = (String) session.getAttribute("star");
+            genre = (String) searchParams.get("genre");
+            prefix = (String) searchParams.get("prefix");
+            title = (String) searchParams.get("title");
+            director = (String) searchParams.get("director");
+            year = (String) searchParams.get("year");
+            star = (String) searchParams.get("star");
         } else if (pageNumber != null && genre == null && prefix == null && title == null && year == null && star == null && sortBy == null && moviesPerPage == null) {
             // Only pageNumber is provided
-            session.setAttribute("pageNumber", pageNumber);
+            searchParams.put("pageNumber", pageNumber);
 
-            genre = (String) session.getAttribute("genre");
-            prefix = (String) session.getAttribute("prefix");
-            title = (String) session.getAttribute("title");
-            director = (String) session.getAttribute("director");
-            year = (String) session.getAttribute("year");
-            star = (String) session.getAttribute("star");
-            sortBy = (String) session.getAttribute("sortBy");
-            moviesPerPage = (String) session.getAttribute("moviesPerPage");
+            genre = (String) searchParams.get("genre");
+            prefix = (String) searchParams.get("prefix");
+            title = (String) searchParams.get("title");
+            director = (String) searchParams.get("director");
+            year = (String) searchParams.get("year");
+            star = (String) searchParams.get("star");
+            sortBy = (String) searchParams.get("sortBy");
+            moviesPerPage = (String) searchParams.get("moviesPerPage");
         } else if (genre != null || prefix != null || title != null || year != null || star != null || sortBy != null || moviesPerPage != null || pageNumber != null) {
             // Original logic for setting attributes
-            session.setAttribute("genre", genre);
-            session.setAttribute("prefix", prefix);
-            session.setAttribute("title", title);
-            session.setAttribute("director", director);
-            session.setAttribute("year", year);
-            session.setAttribute("star", star);
-            session.setAttribute("sortBy", sortBy);
-            session.setAttribute("moviesPerPage", moviesPerPage);
-            session.setAttribute("pageNumber", pageNumber);
+            searchParams.put("genre", genre);
+            searchParams.put("prefix", prefix);
+            searchParams.put("title", title);
+            searchParams.put("director", director);
+            searchParams.put("year", year);
+            searchParams.put("star", star);
+            searchParams.put("sortBy", sortBy);
+            searchParams.put("moviesPerPage", moviesPerPage);
+            searchParams.put("pageNumber", pageNumber);
         } else {
             // No parameters are provided
-            genre = (String) session.getAttribute("genre");
-            prefix = (String) session.getAttribute("prefix");
-            title = (String) session.getAttribute("title");
-            director = (String) session.getAttribute("director");
-            year = (String) session.getAttribute("year");
-            star = (String) session.getAttribute("star");
-            sortBy = (String) session.getAttribute("sortBy");
-            moviesPerPage = (String) session.getAttribute("moviesPerPage");
-            pageNumber = (String) session.getAttribute("pageNumber");
+            genre = (String) searchParams.get("genre");
+            prefix = (String) searchParams.get("prefix");
+            title = (String) searchParams.get("title");
+            director = (String) searchParams.get("director");
+            year = (String) searchParams.get("year");
+            star = (String) searchParams.get("star");
+            sortBy = (String) searchParams.get("sortBy");
+            moviesPerPage = (String) searchParams.get("moviesPerPage");
+            pageNumber = (String) searchParams.get("pageNumber");
         }
 
         // Get a connection from dataSource and let resource manager close the connection after usage.

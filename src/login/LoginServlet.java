@@ -1,3 +1,5 @@
+package login;
+
 import com.google.gson.JsonObject;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.annotation.WebServlet;
@@ -57,12 +59,23 @@ public class LoginServlet extends HttpServlet {
             boolean validCreds = verifyCredentials(username, password);
 
             if (validCreds) {
-                HttpSession session = request.getSession();
-                session.setAttribute("user", new User(username));
+                // Login success:
+
+                // use username as the subject of JWT
+                String subject = username;
+
+                Map<String, Object> claims = new HashMap<>();
+
+                DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+                claims.put("loginTime", dateFormat.format(new Date()));
+                claims.put("role", "customer");
 
                 HashMap<String, Integer> cart = new HashMap<>();
-                session.setAttribute("cart", cart);
-                session.setAttribute("role", "customer");
+                claims.put("cart", cart);
+
+                // Generate new JWT and add it to Header
+                String token = JwtUtil.generateToken(subject, claims);
+                JwtUtil.updateJwtCookie(request, response, token);
 
                 responseJsonObject.addProperty("status", "success");
                 responseJsonObject.addProperty("message", "success");

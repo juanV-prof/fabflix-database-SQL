@@ -1,5 +1,9 @@
+package movies;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import common.JwtUtil;
+import io.jsonwebtoken.Claims;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import jakarta.servlet.ServletConfig;
@@ -7,8 +11,6 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
-
 import javax.sql.DataSource;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -42,8 +44,8 @@ public class CheckoutServlet extends HttpServlet {
         response.setContentType("application/json");
         PrintWriter out = response.getWriter();
 
-        HttpSession session = request.getSession();
-        Map<String, Integer> cart = (Map<String, Integer>) session.getAttribute("cart");
+        Claims claims = (Claims) request.getAttribute("claims");
+        Map<String, Integer> cart = (Map<String, Integer>) claims.get("cart");
 
 
         if (cart == null || cart.isEmpty()) {

@@ -1,9 +1,10 @@
+package common;
+
+import io.jsonwebtoken.Claims;
 import jakarta.servlet.*;
 import jakarta.servlet.annotation.WebFilter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
-
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -31,23 +32,27 @@ public class LoginFilter implements Filter {
             return;
         }
 
-        HttpSession session = httpRequest.getSession();
-        String role = (session != null) ? (String) session.getAttribute("role") : null;
+        String token = JwtUtil.getCookieValue(httpRequest, "jwtToken");
+        Claims claims = JwtUtil.validateToken(token);
 
-        // Redirect to login page if the "user" attribute doesn't exist in session
-        if (httpRequest.getSession().getAttribute("user") == null) {
-            httpResponse.sendRedirect(httpRequest.getContextPath() + "/login.html");
-            return;
+        if (claims != null) {
+            // Store claims in request attributes
+            // Downstream servlets can use claims as the session storage
+            String role = claims.get("role", String.class);
+
+            if ("customer".equals(role)
+                    && httpRequest.getRequestURI().contains("/_dashboard/")
+                    && !httpRequest.getRequestURI().endsWith("/_dashboard/login.html")) {
+                httpResponse.sendRedirect(httpRequest.getContextPath() + "/_dashboard/login.html");
+                return;
+            }
+
+            httpRequest.setAttribute("claims", claims);
+            chain.doFilter(request, response);
+        } else {
+            httpResponse.sendRedirect("login.html");
         }
 
-        if ("customer".equals(role)
-                && httpRequest.getRequestURI().contains("/_dashboard/")
-                && !httpRequest.getRequestURI().endsWith("/_dashboard/login.html")) {
-            httpResponse.sendRedirect(httpRequest.getContextPath() + "/_dashboard/login.html");
-            return;
-        }
-
-        chain.doFilter(request, response);
     }
 
     private boolean isUrlAllowedWithoutLogin(String requestURI) {

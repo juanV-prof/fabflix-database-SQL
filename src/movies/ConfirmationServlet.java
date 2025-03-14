@@ -1,5 +1,9 @@
+package movies;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import common.JwtUtil;
+import io.jsonwebtoken.Claims;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import jakarta.servlet.ServletConfig;
@@ -7,7 +11,6 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
 import javax.sql.DataSource;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -40,8 +43,8 @@ public class ConfirmationServlet extends HttpServlet {
         response.setContentType("application/json");
         PrintWriter out = response.getWriter();
 
-        HttpSession session = request.getSession();
-        List<Integer> saleIds = (List<Integer>) session.getAttribute("saleIds");
+        Claims claims = (Claims) request.getAttribute("claims");
+        List<Integer> saleIds = (List<Integer>) claims.get("saleIds");
 
         JsonArray jsonArray = new JsonArray();
 

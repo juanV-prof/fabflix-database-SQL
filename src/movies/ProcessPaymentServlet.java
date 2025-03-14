@@ -1,10 +1,13 @@
+package movies;
+
 import com.google.gson.JsonObject;
+import common.JwtUtil;
+import io.jsonwebtoken.Claims;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
@@ -40,8 +43,8 @@ public class ProcessPaymentServlet extends HttpServlet {
         PrintWriter out = response.getWriter();
         JsonObject responseJsonObject = new JsonObject();
 
-        HttpSession session = request.getSession();
-        Map<String, Integer> cart = (Map<String, Integer>) session.getAttribute("cart");
+        Claims claims = (Claims) request.getAttribute("claims");
+        Map<String, Integer> cart = (Map<String, Integer>) claims.get("cart");
 
         String cardNumber = request.getParameter("cardNumber");
         String firstName = request.getParameter("firstName");
@@ -89,7 +92,6 @@ public class ProcessPaymentServlet extends HttpServlet {
                 return;
             }
 
-            session.removeAttribute("saleIds");
             List<Integer> saleIds = new ArrayList<>();
             String insertSaleQuery = "INSERT INTO sales (customerId, movieId, saleDate, quantity) VALUES (?, ?, ?, ?)";
             PreparedStatement insertStatement = conn.prepareStatement(insertSaleQuery, PreparedStatement.RETURN_GENERATED_KEYS);
@@ -111,8 +113,12 @@ public class ProcessPaymentServlet extends HttpServlet {
                 }
             }
 
-            session.setAttribute("saleIds", saleIds);
-            cart.clear();
+            Map<String, Object> updatedClaims = new HashMap<>(claims);
+            updatedClaims.put("saleIds", saleIds);
+            updatedClaims.put("cart", new HashMap<>());
+
+            String newToken = JwtUtil.generateToken(claims.getSubject(), updatedClaims);
+            JwtUtil.updateJwtCookie(request, response, newToken);
 
             responseJsonObject.addProperty("success", true);
             responseJsonObject.addProperty("customer_id", customerId);

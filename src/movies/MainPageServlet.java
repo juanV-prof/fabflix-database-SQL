@@ -1,3 +1,5 @@
+package movies;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import javax.naming.InitialContext;

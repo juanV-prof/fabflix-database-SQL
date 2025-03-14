@@ -1,15 +1,19 @@
+package movies;
+
 import com.google.gson.JsonObject;
+import common.JwtUtil;
+import io.jsonwebtoken.Claims;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Map;
 
 @WebServlet(name = "CartServlet", urlPatterns = "/api/cart")
 public class CartServlet extends HttpServlet {
@@ -27,12 +31,12 @@ public class CartServlet extends HttpServlet {
     }
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        HttpSession session = request.getSession();
-        HashMap<String, Integer> cart = (HashMap<String, Integer>) session.getAttribute("cart");
+        response.setContentType("application/json");
+        Claims claims = (Claims) request.getAttribute("claims");
 
+        HashMap<String, Integer> cart = claims.get("cart", HashMap.class);
         if (cart == null) {
             cart = new HashMap<>();
-            session.setAttribute("cart", cart);
         }
 
         String movieId = request.getParameter("movieId");
@@ -47,6 +51,12 @@ public class CartServlet extends HttpServlet {
             int quantity = Integer.parseInt(quantityStr);
             cart.put(movieId, quantity);
         }
+
+        Map<String, Object> updatedClaims = new HashMap<>(claims);
+        updatedClaims.put("cart", cart);
+
+        String newToken = JwtUtil.generateToken(claims.getSubject(), updatedClaims);
+        JwtUtil.updateJwtCookie(request, response, newToken);
 
         JsonObject responseJsonObject = new JsonObject();
         responseJsonObject.addProperty("status", "success");
