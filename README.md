@@ -3,35 +3,28 @@
 
     - #### Names: Alfredo Leon and Juan Varela
 
-    - #### Project 4 Video Demo Link: https://www.youtube.com/watch?v=c9oaZPOmVws
-
-    - #### Instruction of deployment:
-      - Deployed project on AWS with JDBC Connection Pooling
-      - Deployed master, slave, and load balancer using apache onto AWS following the instructions given to us
-      - Enables sticky sessions to allow proper handling of sessions
-      - Setup GCP load balancer with the same instructions
+    - #### Project 5 Video Demo Link: https://www.youtube.com/watch?v=unm90Lqf3P8
 
     - #### Collaborations and Work Distribution:
-      - Juan Varela - Task 1
-      - Alfredo Leon - Task 2-4
+      - Juan Varela - Made Dockerfile, all yaml files
+      - Alfredo Leon - Tasks 1-4 (due to running on one computer but met up in person to do it together)
 
-
-- # Connection Pooling
-    - #### Include the filename/path of all code/configuration files in GitHub of using JDBC Connection Pooling.
-      - **File Path:** `META-INF/context.xml`, `src/*.java`, `src/utils/*.java`
-
-    - #### Explain how Connection Pooling is utilized in the Fabflix code.
-      - Our init methods of our Servlets retrieve DataSource from JNDI
-      - Instead of creating new connections, we use dataSource.getConnection() to get a connection from the pool
-
-    - #### Explain how Connection Pooling works with two backend SQL.
-      - The master is the only one who handles the write queries, and read queries are sent equally between Master and Slave
-
-
-- # Master/Slave
-    - #### Include the filename/path of all code/configuration files in GitHub of routing queries to Master/Slave SQL.
-      - **File Path:** `META-INF/context.xml`, `WEB-INF/web.xml`, `src/*.java`, `src/utils/*.java`
-      - **Master/Slave Query Routing:** Implemented in all servlets under `src/` by obtaining connections from `dataSource.getConnection()`.
-
-    - #### How read/write requests were routed to Master/Slave SQL?
-      - Write requests would go to the master, while read requests were equally distributed between Master and Slave for load balancing 
+    - #### Endpoints:
+        - Common
+          - 'doFilter /*'
+        - Login
+          - 'POST /api/employeeLogin'
+          - 'POST /api/login'
+        - Movies
+          - 'POST /api/add_movie'
+          - 'POST /api/add_star'
+          - 'POST /api/autocomplete'
+          - 'POST /api/cart'
+          - 'GET /api/checkout'
+          - 'GET /api/confirmation'
+          - 'GET /api/main_page'
+          - 'GET /api/movie'
+          - 'POST /api/process-payment'
+          - 'GET /api/results'
+          - 'GET /api/star'
+          - 'GET /api/top20'
