@@ -1,29 +1,37 @@
-apiVersion: networking.k8s.io/v1
-kind: Ingress
+apiVersion: networking.k8s.io/v1             # Specifies Ingress API version
+kind: Ingress                                # Defines this resource as an Ingress
 metadata:
+  name: fabflix-multi-ingress                # Names this Ingress resource
+  namespace: default                         # Places this Ingress in the 'default' namespace
   annotations:
-    kubernetes.io/ingress.class: nginx # Specifies that this Ingress resource should be handled by the nginx Ingress controller.
-    nginx.ingress.kubernetes.io/affinity: "cookie" # # Enables session affinity based on cookies, ensuring requests from the same client are routed to the same backend.
-    nginx.ingress.kubernetes.io/session-cookie-name: "stickounet" # Sets the name of the session cookie used for maintaining session affinity.
-    nginx.ingress.kubernetes.io/session-cookie-expires: "172800" # Specifies the expiration time of the session cookie in seconds (172800 seconds = 2 days).
-    nginx.ingress.kubernetes.io/session-cookie-max-age: "172800" # Sets the maximum age of the session cookie in seconds, aligning with the expiration time.
-  name: fabflix-multi-ingress # Names this Ingress resource as "fabflix-multi-ingress".
-  namespace: default
+    nginx.ingress.kubernetes.io/use-regex: "true"            # Enables regex matching for paths
+    nginx.ingress.kubernetes.io/affinity: "cookie"           # Enables session affinity (sticky sessions)
+    nginx.ingress.kubernetes.io/session-cookie-name: "stickounet"  # Defines the name of the session cookie
+    nginx.ingress.kubernetes.io/session-cookie-expires: "172800"   # Session cookie expires in 2 days
+    nginx.ingress.kubernetes.io/session-cookie-max-age: "172800"   # Max age for the cookie is also 2 days
 spec:
+  ingressClassName: nginx                     # Use 'nginx' as the Ingress controller
   rules:
     - http:
         paths:
-          - backend:
+          - path: /cs122b-winter25-aj/api/login
+            pathType: Prefix                  # Requests beginning with '/api/login' go here
+            backend:
               service:
-                name: fabflix-login-service # Points to the service named "fabflix-login-service". The value should match the name of the service.
+                name: fabflix-login-service    # Name of the Service receiving traffic
                 port:
-                  number: 8080 # Specifies that the service is listening on port 8080.
-            path: /login # # Defines the path to match incoming requests. Here, "/" means the root path.
-            pathType: Prefix # # Indicates that the path is a prefix match, so any request path starting with "/" will be routed to the backend service.
-          - backend:
+                  number: 8080                # Service port to forward traffic to
+          - path: /cs122b-winter25-aj/login.*
+            pathType: ImplementationSpecific   # Implementation-specific path matching for regex
+            backend:
               service:
-                name: fabflix-movies-service # Points to the service named "fabflix-movies-service". The value should match the name of the service.
+                name: fabflix-login-service
                 port:
-                  number: 8080 # Specifies that the service is listening on port 8080.
-            path: /movies # # Defines the path to match incoming requests. Here, "/" means the root path.
-            pathType: Prefix # # Indicates that the path is a prefix match, so any request path starting with "/" will be routed to the backend service.
+                  number: 8080
+          - path: /
+            pathType: Prefix                  # All other requests matching '/' go here
+            backend:
+              service:
+                name: fabflix-movies-service     # Name of the Service receiving traffic
+                port:
+                  number: 8080                # Service port to forward traffic to
