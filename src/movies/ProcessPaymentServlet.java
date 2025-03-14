@@ -1,5 +1,6 @@
 package movies;
 
+import java.util.HashMap;
 import com.google.gson.JsonObject;
 import common.JwtUtil;
 import io.jsonwebtoken.Claims;
