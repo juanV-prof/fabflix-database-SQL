@@ -13,6 +13,7 @@ public class RecaptchaVerifyUtils {
     public static final String SITE_VERIFY_URL = "https://www.google.com/recaptcha/api/siteverify";
 
     public static void verify(String gRecaptchaResponse) throws Exception {
+        System.out.println("Login request received in login service");
         URL verifyUrl = new URL(SITE_VERIFY_URL);
 
         // Open Connection to URL

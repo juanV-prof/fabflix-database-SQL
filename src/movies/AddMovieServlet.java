@@ -20,6 +20,7 @@ public class AddMovieServlet extends HttpServlet {
 
 
     public void init(ServletConfig config) {
+        System.out.println("Movie request received in movie service");
         try {
             dataSource = (DataSource) new InitialContext().lookup("java:comp/env/jdbc/moviedbMaster");
         } catch (NamingException e) {

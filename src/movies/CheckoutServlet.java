@@ -41,6 +41,7 @@ public class CheckoutServlet extends HttpServlet {
      * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
      */
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        System.out.println("Movie request received in movie service");
         response.setContentType("application/json");
         PrintWriter out = response.getWriter();
 

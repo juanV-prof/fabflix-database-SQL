@@ -31,6 +31,7 @@ public class AddStarServlet extends HttpServlet {
     }
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        System.out.println("Movie request received in movie service");
         response.setContentType("application/json");
         PrintWriter out = response.getWriter();
 
