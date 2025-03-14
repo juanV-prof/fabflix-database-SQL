@@ -28,9 +28,10 @@
             <version>1.9.3</version>
         </dependency>
     </dependencies>
+
     <build>
         <finalName>cs122b-winter25-aj</finalName>
-        <sourceDirectory>src</sourceDirectory>
+        <sourceDirectory>${endpointDir}</sourceDirectory>
         <plugins>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -44,8 +45,54 @@
                 <version>3.4.0</version>
                 <configuration>
                     <warSourceDirectory>WebContent</warSourceDirectory>
+                    <warSourceExcludes>${excludes}</warSourceExcludes>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>3.2.0</version>
+                <executions>
+                    <execution>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>src/common</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>login</id>
+            <properties>
+                <endpointDir>src/login</endpointDir>
+                <excludes>**/checkout.html, **/checkout.js, **/confirmation.html, **/confirmation.js, **/main_page.html,
+                    **/movie.html, **/movie.js, **/payment.html, **/payment.js, **/results.html, **/results.js,
+                    **/star.html, **/star.js, **/top20.html, **/top20.js
+                </excludes>
+            </properties>
+        </profile>
+        <profile>
+            <id>movies</id>
+            <properties>
+                <endpointDir>src/movies</endpointDir>
+                <excludes>**/login.html, **/login.js</excludes>
+            </properties>
+        </profile>
+        <profile>
+            <id>default</id>
+            <properties>
+                <endpointDir>src</endpointDir>
+                <excludes/>
+            </properties>
+        </profile>
+    </profiles>
 </project>
