@@ -1,5 +1,6 @@
 package login;
 
+import common.JwtUtil;
 import com.google.gson.JsonObject;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.annotation.WebServlet;
