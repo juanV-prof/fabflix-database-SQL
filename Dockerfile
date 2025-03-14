@@ -4,13 +4,14 @@
 FROM maven:3.8.5-openjdk-11-slim AS builder
 
 # create and `cd` into a folder called "app" inside the virtual machine
+ARG MVN_PROFILE="default"
 WORKDIR /app
 
 # copy everything in the current folder into the "app" folder. (src/ WebContent/ etc)
 COPY . .
 
 # compile the application inside the "app" folder to generate the war file
-RUN mvn clean package
+RUN mvn clean package -P${MVN_PROFILE}
 
 # download all the necessary software to run tomcat (this is another base image)
 FROM tomcat:10-jdk11
