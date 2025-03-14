@@ -28,7 +28,7 @@ spec:
                 name: fabflix-login-service
                 port:
                   number: 8080
-          - path: /
+          - path: /cs122b-winter25-aj/
             pathType: Prefix                  # All other requests matching '/' go here
             backend:
               service:
