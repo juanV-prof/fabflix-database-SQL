@@ -17,7 +17,7 @@ spec:
           image: alfredl5/cs122b-winter25-aj:v2 # Uses the Docker image "https://hub.docker.com/r/chenliteaching/cs122b-p5-murphy" for the container.
           imagePullPolicy: Always # Specifies that the image should always be pulled from the repository when the image is updated.
           ports:
-            - name: http
+            - name: http  
               containerPort: 8080 # Exposes port 8080 of the container.
           resources:
             limits:
